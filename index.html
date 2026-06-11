@@ -125,11 +125,11 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
   <div class="keybar">
     <div class="keyrow">
       <label for="apikey">&#128273; Finnhub API key:</label>
-      <input type="text" id="apikey" placeholder="e.g. d8kjbohr01qjgd70kor0" autocomplete="off" spellcheck="false" maxlength="20" />
+      <input type="text" id="apikey" placeholder="e.g. d8l5ou1r01qut1f95p1gd8l5ou1r01qut1f95p20" autocomplete="off" spellcheck="false" maxlength="50" />
       <button class="btn" onclick="saveAndLoad()" style="padding:6px 14px;font-size:12px">Apply &amp; Load &#x2192;</button>
     </div>
     <p class="keynote">
-      Free key at <a href="https://finnhub.io" target="_blank" rel="noopener">finnhub.io</a> — sign up, go to Dashboard, copy your 20-character key.
+      Free key at <a href="https://finnhub.io" target="_blank" rel="noopener">finnhub.io</a> — sign up, go to Dashboard, copy your 40-character key.
       Saved in your browser; enter once only. Free tier: 60 calls/min, real-time US prices.
     </p>
   </div>
@@ -283,16 +283,16 @@ async function loadAll(){
   }
 
   // Warn if key looks wrong length
-  if(apiKey.length!==20){
-    showAlert('awarn',`⚠ Your key is ${apiKey.length} characters — Finnhub free keys are exactly 20. Double-check you copied it correctly.`);
+  if(apiKey.length!==40){
+    showAlert('awarn',`⚠ Your key is ${apiKey.length} characters — Finnhub free keys are now 40 characters. Double-check you copied it completely.`);
   }
 
   btn.disabled=true; sdot.className='spin'; sdot.style.background=''; stxt.textContent='Fetching…'; ts.textContent='';
   $('tbody').innerHTML=ETFs.map(e=>skRow(e.t,e.n)).join('');
   ['sd','sdn','ss','ssn','sa','sc'].forEach(id=>$(id).textContent='—');
 
-  log(`Key: ${apiKey.slice(0,6)}…${apiKey.slice(-3)} (${apiKey.length} chars)`);
-  log(`Origin: ${location.origin} | Protocol: ${location.protocol}`);
+  log(`Key: ${apiKey.slice(0,8)}…${apiKey.slice(-4)} (${apiKey.length} chars)`);
+  log(`Origin: ${location.origin} | Protocol: ${location.protocol}`);;
   log(`Time: ${new Date().toISOString()}`);
   log('──────────────────────────────');
 

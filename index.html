@@ -22,9 +22,9 @@ h1 em { color:var(--accent); font-style:normal; }
 .tagline { font-size:12px; color:var(--muted); margin-top:3px; }
 .meta { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; align-items:center; }
 .badge { font-size:11px; padding:3px 10px; border-radius:20px; border:1px solid; display:inline-flex; align-items:center; gap:5px; }
-.bl  { border-color:rgba(34,197,94,.4);  background:rgba(34,197,94,.08);  color:#86efac; }
-.bi  { border-color:rgba(96,165,250,.3); background:rgba(96,165,250,.06); color:#93c5fd; }
-.bp_ { border-color:rgba(168,85,247,.35);background:rgba(168,85,247,.07); color:#d8b4fe; }
+.bl { border-color:rgba(34,197,94,.4); background:rgba(34,197,94,.08); color:#86efac; }
+.bi { border-color:rgba(96,165,250,.3); background:rgba(96,165,250,.06); color:#93c5fd; }
+.bp_ { border-color:rgba(168,85,247,.35); background:rgba(168,85,247,.07); color:#d8b4fe; }
 #sdot { width:7px; height:7px; border-radius:50%; background:#22c55e; display:inline-block; }
 #sdot.spin { background:var(--yellow); animation:pu 1s infinite; }
 #sdot.err  { background:var(--red); }
@@ -36,24 +36,23 @@ h1 em { color:var(--accent); font-style:normal; }
 .keybar input:focus { border-color:var(--accent); }
 .keynote { font-size:11px; color:var(--muted); margin-top:9px; line-height:1.65; }
 .keynote a { color:var(--blue); text-decoration:none; }
+.keynote a:hover { text-decoration:underline; }
 
 .btn { display:inline-flex; align-items:center; gap:7px; background:var(--bg3); border:1px solid rgba(99,102,241,.45); color:#a5b4fc; font-size:13px; padding:7px 16px; border-radius:8px; cursor:pointer; transition:all .15s; white-space:nowrap; }
 .btn:hover { background:rgba(99,102,241,.15); border-color:rgba(99,102,241,.75); }
 .btn:disabled { opacity:.4; cursor:default; }
 .btn svg { width:15px; height:15px; flex-shrink:0; }
+.btn-sm { padding:5px 11px; font-size:11px; }
 .btn-purple { border-color:rgba(168,85,247,.45); color:#d8b4fe; }
 .btn-purple:hover { background:rgba(168,85,247,.12); border-color:rgba(168,85,247,.75); }
-.btn-gold { border-color:rgba(245,158,11,.45); color:var(--gold); }
-.btn-gold:hover { background:rgba(245,158,11,.1); border-color:rgba(245,158,11,.75); }
 
 .alert { border-radius:8px; padding:11px 14px; margin-bottom:14px; font-size:12px; line-height:1.65; display:none; }
-.alert-err  { background:rgba(239,68,68,.08);  border:1px solid rgba(239,68,68,.3);  color:#fca5a5; }
-.alert-ok   { background:rgba(34,197,94,.07);  border:1px solid rgba(34,197,94,.25); color:#86efac; }
-.alert-warn { background:rgba(234,179,8,.07);  border:1px solid rgba(234,179,8,.25); color:#fde68a; }
-.alert-info { background:rgba(168,85,247,.06); border:1px solid rgba(168,85,247,.25);color:#d8b4fe; }
-.alert a { color:inherit; }
+.alert-err  { background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.3); color:#fca5a5; }
+.alert-ok   { background:rgba(34,197,94,.07); border:1px solid rgba(34,197,94,.25); color:#86efac; }
+.alert-warn { background:rgba(234,179,8,.07); border:1px solid rgba(234,179,8,.25); color:#fde68a; }
+.alert-info { background:rgba(168,85,247,.06); border:1px solid rgba(168,85,247,.25); color:#d8b4fe; }
 
-.diag { background:var(--bg2); border:1px solid var(--faint); border-radius:8px; padding:12px 14px; font-size:11px; color:var(--muted); font-family:'Courier New',monospace; white-space:pre-wrap; line-height:1.7; display:none; margin-bottom:14px; max-height:200px; overflow-y:auto; }
+.diag { background:var(--bg2); border:1px solid var(--faint); border-radius:8px; padding:12px 14px; font-size:11px; color:var(--muted); font-family:'Courier New',monospace; white-space:pre-wrap; line-height:1.7; display:none; margin-bottom:14px; max-height:160px; overflow-y:auto; }
 
 .sgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(155px,1fr)); gap:10px; margin-bottom:1.5rem; }
 .scard { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
@@ -61,22 +60,18 @@ h1 em { color:var(--accent); font-style:normal; }
 .sval { font-size:22px; font-weight:700; font-variant-numeric:tabular-nums; }
 .ssub { font-size:11px; color:var(--muted); margin-top:2px; }
 
-.tbl-section { margin-bottom:1.5rem; }
-.section-label { font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); padding:0 4px 8px; display:flex; align-items:center; gap:8px; }
-.section-label::after { content:''; flex:1; height:1px; background:var(--border); }
-
-.twrap { border:1px solid var(--border); border-radius:12px; overflow:hidden; overflow-x:auto; }
-table { width:100%; border-collapse:collapse; font-size:13.5px; min-width:660px; }
+.twrap { border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:1.5rem; overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:13.5px; min-width:680px; }
 thead th { background:var(--bg2); font-size:10px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); text-align:left; padding:11px 14px; border-bottom:1px solid var(--border); }
 thead th.r { text-align:right; }
+thead th.c { text-align:center; }
 tbody tr:hover td { background:rgba(255,255,255,.022); }
 tbody tr:not(:last-child) td { border-bottom:1px solid var(--border); }
 td { padding:12px 14px; vertical-align:middle; }
 .r { text-align:right; }
-
+.c { text-align:center; }
 .tkw { display:flex; align-items:center; gap:10px; }
 .tkico { width:34px; height:34px; border-radius:8px; background:var(--bg3); border:1px solid var(--faint); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; color:var(--blue); flex-shrink:0; }
-.tkico.idx { color:var(--gold); border-color:rgba(245,158,11,.3); background:rgba(245,158,11,.06); }
 .tksym { font-weight:600; font-size:13px; }
 .tknm  { font-size:11px; color:var(--muted); margin-top:1px; }
 
@@ -96,16 +91,26 @@ td { padding:12px 14px; vertical-align:middle; }
 .rd.ok   { background:#22c55e; }
 .rd.spin { background:var(--yellow); animation:pu 1s infinite; }
 .rd.err  { background:var(--red); }
+
 .sk { background:var(--bg3); border-radius:4px; display:inline-block; animation:sh 1.3s infinite; height:14px; }
 
+/* ATH editable cell */
 .ath-cell { display:flex; align-items:center; justify-content:flex-end; gap:6px; }
-.ath-input { width:88px; background:var(--bg3); border:1px solid var(--faint); border-radius:5px; color:var(--text); font-size:13px; padding:4px 7px; text-align:right; font-variant-numeric:tabular-nums; outline:none; font-family:inherit; }
+.ath-input {
+  width:78px; background:var(--bg3); border:1px solid var(--faint); border-radius:5px;
+  color:var(--text); font-size:13px; padding:4px 7px; text-align:right;
+  font-variant-numeric:tabular-nums; outline:none; font-family:inherit;
+}
 .ath-input:focus { border-color:var(--accent); }
-.ath-input.auto { border-color:rgba(168,85,247,.4); color:#d8b4fe; }
-.ath-src { font-size:9px; padding:1px 5px; border-radius:4px; cursor:help; flex-shrink:0; border:1px solid; white-space:nowrap; }
-.src-manual    { background:rgba(96,165,250,.08);  border-color:rgba(96,165,250,.3);  color:#93c5fd; }
-.src-suggested { background:rgba(168,85,247,.08);  border-color:rgba(168,85,247,.3);  color:#d8b4fe; }
-.src-live      { background:rgba(34,197,94,.08);   border-color:rgba(34,197,94,.3);   color:#86efac; }
+.ath-input.suggested { border-color:rgba(168,85,247,.5); color:#d8b4fe; }
+.ath-src {
+  font-size:9px; padding:1px 5px; border-radius:4px; cursor:help; flex-shrink:0;
+  border:1px solid; white-space:nowrap;
+}
+.src-manual    { background:rgba(96,165,250,.08); border-color:rgba(96,165,250,.3); color:#93c5fd; }
+.src-suggested { background:rgba(168,85,247,.08); border-color:rgba(168,85,247,.3); color:#d8b4fe; }
+.src-pending   { background:rgba(148,163,184,.07); border-color:rgba(148,163,184,.2); color:var(--muted); }
+.src-live      { background:rgba(34,197,94,.08); border-color:rgba(34,197,94,.3); color:#86efac; }
 
 footer { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; padding-top:1rem; border-top:1px solid var(--border); font-size:11px; color:var(--muted); }
 .leg { display:flex; gap:14px; flex-wrap:wrap; }
@@ -114,7 +119,7 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
 
 @keyframes pu { 0%,100%{opacity:1} 50%{opacity:.25} }
 @keyframes sh { 0%,100%{opacity:.3} 50%{opacity:.75} }
-@media(max-width:580px){ body{padding:1.25rem 1rem} h1{font-size:18px} .tkico{display:none} .ath-input{width:72px} }
+@media(max-width:560px){ body{padding:1.25rem 1rem} h1{font-size:18px} .tkico{display:none} .ath-input{width:64px} }
 </style>
 </head>
 <body>
@@ -124,12 +129,13 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
     <div class="hdr-top">
       <div>
         <h1>&#x2193; Equity <em>Drawdown</em> Monitor</h1>
-        <p class="tagline">Distance from all-time high &nbsp;·&nbsp; Indices + ETFs &nbsp;·&nbsp; Live prices via Finnhub</p>
+        <p class="tagline">Distance of each ETF from its all-time high &nbsp;·&nbsp; Live prices via Finnhub + editable ATH</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-gold" id="testbtn" onclick="testConnection()">&#x1F50C; Test Key</button>
         <button class="btn btn-purple" id="suggbtn" onclick="suggestATH()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+          </svg>
           Suggest ATH
         </button>
         <button class="btn" id="rbtn" onclick="loadAll()">
@@ -143,8 +149,8 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
     </div>
     <div class="meta">
       <span class="badge bl"><span id="sdot"></span>&nbsp;<span id="stxt">Ready</span></span>
-      <span class="badge bi">&#127758; Live via Finnhub free tier</span>
-      <span class="badge bp_">&#x270F;&#xFE0F; ATH editable + auto-suggest</span>
+      <span class="badge bi">&#127758; Live prices: Finnhub</span>
+      <span class="badge bp_">&#x1F4A1; ATH: Editable + auto-suggest</span>
     </div>
     <p id="ts" style="font-size:11px;color:var(--muted);margin-top:6px"></p>
   </header>
@@ -152,26 +158,14 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
   <div class="keybar">
     <div class="keyrow">
       <label for="apikey">&#128273; Finnhub API key:</label>
-      <input type="text" id="apikey" placeholder="Paste your 40-character Finnhub key here…" autocomplete="off" spellcheck="false" maxlength="50" />
+      <input type="text" id="apikey" placeholder="e.g. d8l5ou1r01qut1f95p1gd8l5ou1r01qut1f95p20" autocomplete="off" spellcheck="false" maxlength="50" />
       <button class="btn" onclick="saveAndLoad()" style="padding:6px 14px;font-size:12px">Apply &amp; Load &#x2192;</button>
     </div>
     <p class="keynote">
-      Free key at <a href="https://finnhub.io" target="_blank" rel="noopener">finnhub.io</a> → Dashboard → copy your 40-character key. Saved in your browser — enter once only.
-      Click <strong style="color:var(--gold)">Test Key</strong> first to verify your connection, then <strong style="color:var(--text)">Apply &amp; Load</strong> to fetch all data.
-      Indices shown as their ETF proxies (DIA/SPY/QQQ) since Finnhub free tier does not support raw index symbols.
+      Free key at <a href="https://finnhub.io" target="_blank" rel="noopener">finnhub.io</a> — sign up, go to Dashboard, copy your 40-character key. Saved in your browser.
+      <strong style="color:var(--text)">ATH values are editable</strong> — click any value in the All-Time High column to update it.
+      Click <strong style="color:#d8b4fe">Suggest ATH</strong> to auto-fill from each ETF's 52-week high (a good proxy when the high was recently set).
     </p>
-  </div>
-
-  <!-- ⛔ Origin warning — auto-shown if not on https:// -->
-  <div id="origin-warn" style="display:none;background:#7f1d1d;border:1px solid #ef4444;border-radius:10px;padding:14px 16px;margin-bottom:1.25rem;font-size:13px;line-height:1.8;color:#fecaca;">
-    <strong style="font-size:14px;display:block;margin-bottom:4px">⛔ Wrong context — open via your GitHub Pages URL</strong>
-    You are viewing this file as: <code id="origin-val" style="background:rgba(0,0,0,.35);padding:1px 7px;border-radius:4px;font-size:12px"></code><br>
-    <strong>All network requests fail in this mode.</strong> You must open the live URL in Safari instead:<br>
-    <a href="https://angks1965.github.io/drawdown-monitor/" target="_blank"
-      style="color:#fca5a5;font-weight:700;font-size:13px;word-break:break-all">
-      ▶ https://angks1965.github.io/drawdown-monitor/
-    </a>
-    <br><span style="font-size:11px;opacity:.8">Tip: Bookmark that URL in Safari so you never open the file directly again.</span>
   </div>
 
   <div class="alert alert-err"  id="aerr"></div>
@@ -183,42 +177,24 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
   <div class="sgrid">
     <div class="scard"><div class="slbl">Deepest drawdown</div><div class="sval" id="sd" style="color:var(--red)">—</div><div class="ssub" id="sdn">—</div></div>
     <div class="scard"><div class="slbl">Shallowest drawdown</div><div class="sval" id="ss" style="color:var(--green)">—</div><div class="ssub" id="ssn">—</div></div>
-    <div class="scard"><div class="slbl">Average drawdown</div><div class="sval" id="sa" style="color:var(--yellow)">—</div><div class="ssub">across all 14 symbols</div></div>
-    <div class="scard"><div class="slbl">In correction (&lt;&#8209;15%)</div><div class="sval" id="sc" style="color:var(--orange)">—</div><div class="ssub">symbols below &minus;15%</div></div>
+    <div class="scard"><div class="slbl">Average drawdown</div><div class="sval" id="sa" style="color:var(--yellow)">—</div><div class="ssub">across all 11 ETFs</div></div>
+    <div class="scard"><div class="slbl">In correction (&lt;&#8209;15%)</div><div class="sval" id="sc" style="color:var(--orange)">—</div><div class="ssub">ETFs below &minus;15%</div></div>
   </div>
 
-  <!-- Index proxies section -->
-  <div class="tbl-section">
-    <div class="section-label">&#x1F4C8; Major Indices <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px">(via ETF proxies — DIA · SPY · QQQ)</span></div>
-    <div class="twrap">
-      <table>
-        <thead><tr>
-          <th style="width:14px"></th><th>Index / ETF Proxy</th>
+  <div class="twrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:14px"></th>
+          <th>ETF</th>
           <th class="r">Current price</th>
-          <th class="r" style="min-width:170px">All&#8209;time high <span style="font-weight:400;text-transform:none;font-size:9px">(editable)</span></th>
+          <th class="r" style="min-width:160px">All&#8209;time high <span style="font-weight:400;text-transform:none;font-size:9px">(editable)</span></th>
           <th class="r">Drawdown</th>
           <th class="r" style="min-width:120px">Depth</th>
-        </tr></thead>
-        <tbody id="idxtbody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ETFs section -->
-  <div class="tbl-section">
-    <div class="section-label">&#x1F4CA; ETF Portfolio</div>
-    <div class="twrap">
-      <table>
-        <thead><tr>
-          <th style="width:14px"></th><th>ETF</th>
-          <th class="r">Current price</th>
-          <th class="r" style="min-width:170px">All&#8209;time high <span style="font-weight:400;text-transform:none;font-size:9px">(editable)</span></th>
-          <th class="r">Drawdown</th>
-          <th class="r" style="min-width:120px">Depth</th>
-        </tr></thead>
-        <tbody id="etftbody"></tbody>
-      </table>
-    </div>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
   </div>
 
   <footer>
@@ -228,170 +204,159 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
       <span class="li"><span class="ls" style="background:#f97316"></span>15–25% — Correction</span>
       <span class="li"><span class="ls" style="background:#ef4444"></span>&gt;25% — Bear territory</span>
     </div>
-    <div style="line-height:1.7">
-      <span class="ath-src src-manual">manual</span> you set this &nbsp;
-      <span class="ath-src src-suggested">52w high</span> auto-suggested &nbsp;
-      <span class="ath-src src-live">new high!</span> price exceeded ATH<br>
-      Data: <a href="https://finnhub.io" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none">Finnhub.io</a>
-      &nbsp;·&nbsp; ATH values saved in your browser
+    <div style="line-height:1.6">
+      <span class="ath-src src-manual" style="margin-right:4px">manual</span> you've set this value &nbsp;
+      <span class="ath-src src-suggested" style="margin-right:4px">52w high</span> auto-suggested &nbsp;
+      <span class="ath-src src-live" style="margin-right:4px">new high!</span> price exceeded ATH<br>
+      Prices: <a href="https://finnhub.io" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none">Finnhub.io</a>
+      &nbsp;|&nbsp; ATH values saved in your browser
     </div>
   </footer>
 </div>
 
 <script>
-// ── Index proxies (Finnhub free does NOT support ^DJI / ^GSPC / ^IXIC directly)
-// Using ETF proxies: DIA ≈ Dow Jones, SPY ≈ S&P 500, QQQ ≈ Nasdaq 100
-const INDICES = [
-  { t:'DIA',  label:'Dow Jones',   desc:'DJIA proxy via SPDR Dow Jones ETF (DIA)',        ath:414.00 },
-  { t:'SPY',  label:'S&P 500',     desc:'S&P 500 proxy via SPDR S&P 500 ETF (SPY)',        ath:613.23 },
-  { t:'QQQ',  label:'Nasdaq 100',  desc:'Nasdaq proxy via Invesco Nasdaq 100 ETF (QQQ)',   ath:540.81 },
-];
+const TICKERS = ['VOO','QQQ','SCHD','SPY','VXUS','URTH','IGV','SMH','SOXX','XLE','XLP'];
+const TICKER_NAMES = {
+  VOO:'Vanguard S&P 500 ETF', QQQ:'Invesco Nasdaq 100 ETF', SCHD:'Schwab US Dividend Equity ETF',
+  SPY:'SPDR S&P 500 ETF Trust', VXUS:'Vanguard Total Intl Stock ETF', URTH:'iShares MSCI World ETF',
+  IGV:'iShares Expanded Tech-SW ETF', SMH:'VanEck Semiconductor ETF', SOXX:'iShares Semiconductor ETF',
+  XLE:'Energy Select Sector SPDR', XLP:'Consumer Staples Select SPDR'
+};
+// Fallback ATH values — used only until the user sets their own or fetches suggestions
+const DEFAULT_ATH = {
+  VOO:699.15, QQQ:748.65, SCHD:31.50, SPY:745.00, VXUS:71.20,
+  URTH:230.50, IGV:130.00, SMH:340.00, SOXX:325.00, XLE:110.50, XLP:92.50
+};
 
-const ETFS = [
-  { t:'VOO',  label:'VOO',  desc:'Vanguard S&P 500 ETF',           ath:566.56 },
-  { t:'SCHD', label:'SCHD', desc:'Schwab US Dividend Equity ETF',   ath:31.50  },
-  { t:'VXUS', label:'VXUS', desc:'Vanguard Total Intl Stock ETF',   ath:71.20  },
-  { t:'URTH', label:'URTH', desc:'iShares MSCI World ETF',          ath:230.50 },
-  { t:'IGV',  label:'IGV',  desc:'iShares Expanded Tech-SW ETF',    ath:130.00 },
-  { t:'SMH',  label:'SMH',  desc:'VanEck Semiconductor ETF',        ath:340.00 },
-  { t:'SOXX', label:'SOXX', desc:'iShares Semiconductor ETF',       ath:325.00 },
-  { t:'XLE',  label:'XLE',  desc:'Energy Select Sector SPDR',       ath:110.50 },
-  { t:'XLP',  label:'XLP',  desc:'Consumer Staples Select SPDR',    ath:92.50  },
-];
-// Note: SPY and QQQ are already in INDICES, removed from ETFS to avoid duplicates
-
-// ── KEY: use same storage name as the last working version (v4) ──────────
-const KEY_STORE = 'finnhub_key_ddm_v4';
-const ATH_STORE = 'ath_values_ddm_v8';
-
-const ALL = [...INDICES, ...ETFS];
+const KEY_STORE = 'finnhub_key_ddm_v6';
+const ATH_STORE = 'ath_values_ddm_v6';   // {TICKER: {value: number, source: 'manual'|'suggested'}}
 const $ = id => document.getElementById(id);
 const log = msg => { const d=$('diag'); d.textContent+=msg+'\n'; d.scrollTop=d.scrollHeight; };
 
-// ── ATH persistence ───────────────────────────────────────────────────────
-function loadATHStore(){
-  try { const r=localStorage.getItem(ATH_STORE); if(r) return JSON.parse(r); } catch(e){}
-  const init={};
-  ALL.forEach(s => init[s.t]={value:s.ath, source:'manual'});
+// ── ATH persistence ──────────────────────────────────────────────────────
+function loadATHStore() {
+  try {
+    const raw = localStorage.getItem(ATH_STORE);
+    if (raw) return JSON.parse(raw);
+  } catch(e){}
+  // Initialise from defaults
+  const init = {};
+  TICKERS.forEach(t => init[t] = { value: DEFAULT_ATH[t], source: 'manual' });
   return init;
 }
-function saveATHStore(store){ localStorage.setItem(ATH_STORE,JSON.stringify(store)); }
-let athStore=loadATHStore();
-let lastPrices={};
+function saveATHStore(store) {
+  localStorage.setItem(ATH_STORE, JSON.stringify(store));
+}
+let athStore = loadATHStore();
 
-window.addEventListener('DOMContentLoaded',()=>{
-  const saved=localStorage.getItem(KEY_STORE);
-  if(saved) $('apikey').value=saved;
-  // Also migrate from any older storage key names
-  if(!saved){
-    const fallbacks=['finnhub_key_ddm_v7','finnhub_key_ddm_v6','finnhub_key_ddm_v5'];
-    for(const k of fallbacks){
-      const v=localStorage.getItem(k);
-      if(v){ $('apikey').value=v; localStorage.setItem(KEY_STORE,v); break; }
-    }
-  }
-
-  // ⛔ Detect wrong context: file://, Quick Look, edge://external-file, etc.
-  // Any non-https origin will block all fetch() calls.
-  if(location.protocol !== 'https:'){
-    $('origin-val').textContent = location.href.slice(0,80);
-    $('origin-warn').style.display = 'block';
-  }
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem(KEY_STORE);
+  if (saved) $('apikey').value = saved;
 });
 
-function saveAndLoad(){
-  const k=$('apikey').value.trim();
-  if(k) localStorage.setItem(KEY_STORE,k);
+function saveAndLoad() {
+  const k = $('apikey').value.trim();
+  if (k) localStorage.setItem(KEY_STORE, k);
   loadAll();
 }
 
-// ── UI helpers ────────────────────────────────────────────────────────────
 function ddCls(p){ const a=Math.abs(p); return a<5?'dg':a<15?'dy':a<25?'do':'dr'; }
 function ddCol(p){ const a=Math.abs(p); return a<5?'#22c55e':a<15?'#eab308':a<25?'#f97316':'#ef4444'; }
 function hideAlerts(){ ['aerr','aok','awarn','ainfo'].forEach(id=>$(id).style.display='none'); }
 function showAlert(id,html){ hideAlerts(); $(id).innerHTML=html; $(id).style.display='block'; }
 
-function renderATHCell(t){
-  const e=athStore[t]||{value:0,source:'manual'};
-  let srcCls,srcLabel,srcTitle;
-  if(e.source==='live'){    srcCls='src-live';      srcLabel='new high!'; srcTitle='Price exceeded previous ATH — auto-updated.'; }
-  else if(e.source==='suggested'){ srcCls='src-suggested'; srcLabel='52w high'; srcTitle='Auto-filled from 52-week high via Finnhub.'; }
-  else {                    srcCls='src-manual';    srcLabel='manual';    srcTitle='Manually set. Click Suggest ATH to auto-fill.'; }
-  return `<div class="ath-cell">
-    <span class="ath-src ${srcCls}" title="${srcTitle}">${srcLabel}</span>
-    <input type="number" step="0.01" class="ath-input${e.source!=='manual'?' auto':''}"
-      value="${e.value.toFixed(2)}" onchange="onATHEdit('${t}',this.value)" />
-  </div>`;
-}
+let lastPrices = {}; // cache last fetched prices for re-render after ATH edits
 
-function skRow(t,label,desc,isIdx){
+function skRow(t,n){
   return `<tr data-t="${t}">
     <td><span class="rd spin" id="dot-${t}"></span></td>
-    <td><div class="tkw"><div class="tkico${isIdx?' idx':''}">${label.slice(0,4)}</div>
-      <div><div class="tksym">${label}</div><div class="tknm">${desc}</div></div></div></td>
-    <td class="r"><span class="sk" style="width:65px"></span></td>
-    <td class="r">${renderATHCell(t)}</td>
+    <td><div class="tkw"><div class="tkico">${t.slice(0,4)}</div>
+      <div><div class="tksym">${t}</div><div class="tknm">${n}</div></div></div></td>
+    <td class="r"><span class="sk" style="width:60px"></span></td>
+    <td class="r"><span class="sk" style="width:90px"></span></td>
     <td class="r"><span class="sk" style="width:72px"></span></td>
     <td><div class="bw"><div class="bt"><div class="bf" style="width:0;background:#333"></div></div>
       <span class="sk" style="width:30px"></span></div></td></tr>`;
 }
 
-function fillDrawdown(t,price,ath){
-  const row=document.querySelector(`tr[data-t="${t}"]`); if(!row) return null;
-  const pct=((price-ath)/ath)*100, cls=ddCls(pct), col=ddCol(pct);
-  const bw=Math.min(Math.abs(pct)/40*100,100).toFixed(1);
-  row.cells[4].innerHTML=`<span class="dd ${cls}">${pct.toFixed(2)}%</span>`;
-  row.cells[5].innerHTML=`<div class="bw"><div class="bt"><div class="bf" style="width:${bw}%;background:${col}"></div></div><span class="bp">${Math.abs(pct).toFixed(1)}%</span></div>`;
+function renderATHCell(t) {
+  const entry = athStore[t] || { value: DEFAULT_ATH[t], source: 'manual' };
+  let srcCls, srcLabel, srcTitle;
+  if (entry.source === 'live') {
+    srcCls = 'src-live'; srcLabel = 'new high!';
+    srcTitle = 'Current price exceeded the previous ATH, so this value was auto-updated to match the current price. Edit to override.';
+  } else if (entry.source === 'suggested') {
+    srcCls = 'src-suggested'; srcLabel = '52w high';
+    srcTitle = 'Auto-suggested from 52-week high. Edit to set a manual value.';
+  } else {
+    srcCls = 'src-manual'; srcLabel = 'manual';
+    srcTitle = 'Manually set value. Click Suggest ATH to auto-fill from 52-week high.';
+  }
+  return `<div class="ath-cell">
+    <span class="ath-src ${srcCls}" title="${srcTitle}">${srcLabel}</span>
+    <input type="number" step="0.01" class="ath-input ${entry.source!=='manual'?'suggested':''}"
+      id="ath-${t}" value="${entry.value.toFixed(2)}"
+      onchange="onATHEdit('${t}', this.value)" />
+  </div>`;
+}
+
+function onATHEdit(t, val) {
+  const num = parseFloat(val);
+  if (!isFinite(num) || num <= 0) return;
+
+  // ATH can never be lower than the current price — if the user tries,
+  // the current price IS the new all-time high.
+  if (lastPrices[t] && num < lastPrices[t]) {
+    athStore[t] = { value: lastPrices[t], source: 'live' };
+    saveATHStore(athStore);
+    const row = document.querySelector(`tr[data-t="${t}"]`);
+    if (row) row.cells[3].innerHTML = renderATHCell(t);
+    fillDrawdown(t, lastPrices[t], lastPrices[t]);
+    showAlert('awarn', `${t}: ATH can't be set below the current price ($${lastPrices[t].toFixed(2)}). `
+      + `Since the current price is now the highest recorded, ATH was set to match it (drawdown = 0%).`);
+    return;
+  }
+
+  athStore[t] = { value: num, source: 'manual' };
+  saveATHStore(athStore);
+  const row = document.querySelector(`tr[data-t="${t}"]`);
+  if (row) row.cells[3].innerHTML = renderATHCell(t);
+  if (lastPrices[t]) fillDrawdown(t, lastPrices[t], num);
+}
+
+function fillDrawdown(t, price, ath) {
+  const row = document.querySelector(`tr[data-t="${t}"]`);
+  if (!row) return null;
+  const pct = ((price-ath)/ath)*100;
+  const cls = ddCls(pct), col = ddCol(pct), bw = Math.min(Math.abs(pct)/40*100,100).toFixed(1);
+  row.cells[4].innerHTML = `<span class="dd ${cls}">${pct.toFixed(2)}%</span>`;
+  row.cells[5].innerHTML = `<div class="bw"><div class="bt"><div class="bf" style="width:${bw}%;background:${col}"></div></div><span class="bp">${Math.abs(pct).toFixed(1)}%</span></div>`;
   return pct;
 }
 
-function fillRow(t,price,ath){
-  const row=document.querySelector(`tr[data-t="${t}"]`); if(!row) return null;
-  $(`dot-${t}`).className='rd ok';
-  row.cells[2].innerHTML=`<span style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">$${price.toFixed(2)}</span>`;
-  row.cells[3].innerHTML=renderATHCell(t);
-  return fillDrawdown(t,price,ath);
+function fillRow(t, price, ath) {
+  const row = document.querySelector(`tr[data-t="${t}"]`);
+  if (!row) return null;
+  $(`dot-${t}`).className = 'rd ok';
+  row.cells[2].innerHTML = `<span style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">$${price.toFixed(2)}</span>`;
+  row.cells[3].innerHTML = renderATHCell(t);
+  return fillDrawdown(t, price, ath);
 }
 
-function errRow(t,reason){
-  const row=document.querySelector(`tr[data-t="${t}"]`); if(!row) return;
-  $(`dot-${t}`).className='rd err';
-  row.cells[2].innerHTML=`<span style="color:var(--muted)">—</span>`;
-  row.cells[3].innerHTML=renderATHCell(t);
-  row.cells[4].innerHTML=`<span class="dd dn" style="font-size:11px">${reason||'N/A'}</span>`;
-  row.cells[5].innerHTML=`<div class="bw"><div class="bt"><div class="bf" style="width:0;background:#333"></div></div></div>`;
+function errRow(t, reason) {
+  const row = document.querySelector(`tr[data-t="${t}"]`);
+  if (!row) return;
+  $(`dot-${t}`).className = 'rd err';
+  row.cells[2].innerHTML = `<span style="color:var(--muted)">—</span>`;
+  row.cells[3].innerHTML = renderATHCell(t);
+  row.cells[4].innerHTML = `<span class="dd dn" style="font-size:11px">${reason||'N/A'}</span>`;
+  row.cells[5].innerHTML = `<div class="bw"><div class="bt"><div class="bf" style="width:0;background:#333"></div></div></div>`;
 }
 
-function onATHEdit(t,val){
-  const num=parseFloat(val); if(!isFinite(num)||num<=0) return;
-  if(lastPrices[t]&&num<lastPrices[t]){
-    athStore[t]={value:lastPrices[t],source:'live'}; saveATHStore(athStore);
-    const row=document.querySelector(`tr[data-t="${t}"]`);
-    if(row) row.cells[3].innerHTML=renderATHCell(t);
-    fillDrawdown(t,lastPrices[t],lastPrices[t]);
-    showAlert('awarn',`ATH for ${t} can't be below current price — set to current price (drawdown = 0%).`);
-    return;
-  }
-  athStore[t]={value:num,source:'manual'}; saveATHStore(athStore);
-  const row=document.querySelector(`tr[data-t="${t}"]`);
-  if(row) row.cells[3].innerHTML=renderATHCell(t);
-  if(lastPrices[t]) fillDrawdown(t,lastPrices[t],num);
-  rebuildSummary();
-}
-
-function rebuildSummary(){
-  const results=ALL.map(s=>{
-    if(!lastPrices[s.t]) return {t:s.t,pct:null};
-    const ath=athStore[s.t]?.value||s.ath;
-    return {t:s.t,pct:((lastPrices[s.t]-ath)/ath)*100};
-  });
-  updateSummary(results);
-}
-
-function updateSummary(results){
-  const v=results.filter(r=>r.pct!==null); if(!v.length) return;
-  const deep=v.reduce((a,b)=>b.pct<a.pct?b:a);
-  const shal=v.reduce((a,b)=>b.pct>a.pct?b:a);
+function updateSummary(results) {
+  const v = results.filter(r=>r.pct!==null);
+  if (!v.length) { ['sd','sdn','ss','ssn','sa','sc'].forEach(id=>$(id).textContent='—'); return; }
+  const deep=v.reduce((a,b)=>b.pct<a.pct?b:a), shal=v.reduce((a,b)=>b.pct>a.pct?b:a);
   const avg=v.reduce((s,r)=>s+r.pct,0)/v.length;
   $('sd').textContent=deep.pct.toFixed(2)+'%'; $('sdn').textContent=deep.t;
   $('ss').textContent=shal.pct.toFixed(2)+'%'; $('ssn').textContent=shal.t;
@@ -399,185 +364,170 @@ function updateSummary(results){
   $('sc').textContent=v.filter(r=>r.pct<-0.15).length;
 }
 
-// ── Fetch price — NO extra headers (avoids CORS preflight) ───────────────
-async function fetchOne(ticker, apiKey){
-  const url=`https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${apiKey}`;
-  log(`→ ${ticker}…`);
-  const res=await fetch(url);
+// ── Fetch current price from Finnhub (no headers = no preflight) ──────────
+async function fetchOne(ticker, apiKey) {
+  const url = `https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${apiKey}`;
+  log(`→ ${ticker} ...`);
+  const res = await fetch(url);
   log(`  ${ticker}: HTTP ${res.status}`);
-  if(res.status===401) throw new Error('invalid_key');
-  if(res.status===403) throw new Error('forbidden');
-  if(res.status===429) throw new Error('rate_limited');
-  if(!res.ok) throw new Error(`http_${res.status}`);
-  const d=await res.json();
-  log(`  ${ticker}: c=${d.c} pc=${d.pc}`);
-  const price=(d.c&&d.c>0)?d.c:d.pc;
-  if(!price||price<=0) throw new Error('no_price');
+  if (res.status===401) throw new Error('invalid_key');
+  if (res.status===403) throw new Error('forbidden');
+  if (res.status===429) throw new Error('rate_limited');
+  if (!res.ok) throw new Error(`http_${res.status}`);
+  const d = await res.json();
+  log(`  ${ticker}: c=${d.c} pc=${d.pc} 52wH=${d.h ?? '?'}`);
+  const price = (d.c && d.c>0) ? d.c : d.pc;
+  if (!price || price<=0) throw new Error('no_price');
   return price;
 }
 
-// ── Suggest ATH from 52-week high ─────────────────────────────────────────
-async function fetchSuggestedATH(ticker, apiKey){
-  const url=`https://finnhub.io/api/v1/stock/metric?symbol=${ticker}&metric=price&token=${apiKey}`;
-  const res=await fetch(url);
-  if(!res.ok) throw new Error(`http_${res.status}`);
-  const d=await res.json();
-  const high=d?.metric?.['52WeekHigh'];
-  if(!high||high<=0) throw new Error('no_52w_high');
+// ── OPTION 3: Auto-suggest ATH from Finnhub's 52-week high field ──────────
+// Finnhub's /quote endpoint doesn't return 52wk high directly on free tier,
+// so we use /stock/metric which provides 52WeekHigh. Falls back gracefully.
+async function fetchSuggestedATH(ticker, apiKey) {
+  const url = `https://finnhub.io/api/v1/stock/metric?symbol=${ticker}&metric=price&token=${apiKey}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`http_${res.status}`);
+  const d = await res.json();
+  const high = d?.metric?.['52WeekHigh'];
+  if (!high || high<=0) throw new Error('no_52w_high');
   return high;
 }
 
-// ── Test Key ──────────────────────────────────────────────────────────────
-async function testConnection(){
-  const apiKey=($('apikey').value.trim())||localStorage.getItem(KEY_STORE)||'';
-  const btn=$('testbtn');
-  hideAlerts(); $('diag').textContent=''; $('diag').style.display='block';
-  btn.disabled=true;
-
-  log('── Connection Test ───────────────────────────────');
-  log(`Time:     ${new Date().toISOString()}`);
-  log(`Origin:   ${location.origin}`);
-  log(`Protocol: ${location.protocol}`);
-  log(`Key:      ${apiKey?apiKey.slice(0,8)+'…'+apiKey.slice(-4)+' ('+apiKey.length+' chars)':'(EMPTY)'}`);
-  log('');
-
-  if(!apiKey){
-    log('FAIL: No API key.'); showAlert('aerr','<strong>No API key found.</strong> Paste your Finnhub key above.');
-    btn.disabled=false; return;
+// ── Suggest ATH button handler ─────────────────────────────────────────────
+async function suggestATH() {
+  const apiKey = $('apikey').value.trim() || localStorage.getItem(KEY_STORE) || '';
+  const btn = $('suggbtn');
+  if (!apiKey) {
+    showAlert('aerr','<strong>API key required.</strong> Enter your Finnhub key first, then click Suggest ATH.');
+    return;
   }
+  btn.disabled = true;
+  $('diag').style.display = 'block';
+  log('\n── Fetching 52-week high suggestions ──');
+  let updated = 0, failed = 0;
 
-  log('Test: Fetching VOO…');
-  try{
-    const url=`https://finnhub.io/api/v1/quote?symbol=VOO&token=${apiKey}`;
-    log(`URL: ${url.replace(apiKey,'***')}`);
-    const res=await fetch(url);
-    log(`HTTP: ${res.status}`);
-    const text=await res.text();
-    log(`Body: ${text.slice(0,300)}`);
-    if(res.ok){
-      const d=JSON.parse(text);
-      const price=(d.c&&d.c>0)?d.c:d.pc;
-      if(price>0){
-        log(`✓ VOO = $${price}`);
-        showAlert('aok',`&#x2713; <strong>Connected!</strong> VOO = $${price.toFixed(2)}. Click <strong>Apply &amp; Load</strong> to fetch all 14 symbols.`);
-        $('diag').style.display='none';
-      } else {
-        log(`✗ Got price=0 — market may be closed. pc=${d.pc}`);
-        showAlert('awarn',`Key works but price=0 — market is likely closed. Previous close: $${d.pc}. Try Apply & Load anyway.`);
-      }
-    } else {
-      if(res.status===401) showAlert('aerr','<strong>HTTP 401 — Key rejected.</strong> Check your key at <a href="https://finnhub.io/dashboard" target="_blank">finnhub.io/dashboard</a>.');
-      else if(res.status===403) showAlert('aerr',`<strong>HTTP 403 — Forbidden.</strong> Body: <code>${text.slice(0,80)}</code><br>Try a different network or wait 60 seconds (rate limit).`);
-      else if(res.status===429) showAlert('awarn','<strong>HTTP 429 — Rate limited.</strong> Wait 60 seconds then try again.');
-      else showAlert('aerr',`<strong>HTTP ${res.status}.</strong> <code>${text.slice(0,100)}</code>`);
-    }
-  } catch(e){
-    log(`✗ Network error: ${e.message}`);
-    showAlert('aerr',`<strong>Network error: ${e.message}</strong><br>`
-      +`Make sure you are on <code>https://</code> — not <code>file://</code> or <code>edge://external-file</code>.<br>`
-      +`Current origin: <code>${location.origin}</code>`);
-  }
-  btn.disabled=false;
-}
+  for (const t of TICKERS) {
+    try {
+      const high = await fetchSuggestedATH(t, apiKey);
+      log(`  ${t}: 52w high = $${high.toFixed(2)}`);
 
-// ── Suggest ATH ───────────────────────────────────────────────────────────
-async function suggestATH(){
-  const apiKey=($('apikey').value.trim())||localStorage.getItem(KEY_STORE)||'';
-  const btn=$('suggbtn');
-  if(!apiKey){ showAlert('aerr','<strong>API key required.</strong> Enter your key first.'); return; }
-  btn.disabled=true; $('diag').style.display='block';
-  log('\n── Suggest ATH ─────────────────────────────────');
-  let updated=0, failed=0;
+      const current = athStore[t]?.value || 0;
+      const price = lastPrices[t] || 0;
+      // ATH can never be below current price — clamp accordingly
+      const candidate = Math.max(high, price);
+      const candidateSource = (price >= high) ? 'live' : 'suggested';
 
-  for(const s of ALL){
-    try{
-      const high=await fetchSuggestedATH(s.t,apiKey);
-      const price=lastPrices[s.t]||0;
-      const candidate=Math.max(high,price);
-      const source=price>=high?'live':'suggested';
-      const current=athStore[s.t]?.value||0;
-      if(candidate>current||athStore[s.t]?.source!=='manual'){
-        athStore[s.t]={value:candidate,source};
+      if (candidate > current || athStore[t]?.source !== 'manual') {
+        athStore[t] = { value: candidate, source: candidateSource };
         updated++;
-        const row=document.querySelector(`tr[data-t="${s.t}"]`);
-        if(row){ row.cells[3].innerHTML=renderATHCell(s.t); if(lastPrices[s.t]) fillDrawdown(s.t,lastPrices[s.t],candidate); }
-        log(`  ${s.t}: ATH → $${candidate.toFixed(2)} [${source}]`);
-      } else { log(`  ${s.t}: no update (stored $${current.toFixed(2)} >= suggested $${candidate.toFixed(2)})`); }
-    } catch(e){ log(`  ${s.t}: failed — ${e.message}`); failed++; }
-    await new Promise(r=>setTimeout(r,130));
+        const row = document.querySelector(`tr[data-t="${t}"]`);
+        if (row) {
+          row.cells[3].innerHTML = renderATHCell(t);
+          if (lastPrices[t]) fillDrawdown(t, lastPrices[t], candidate);
+        }
+      }
+    } catch(e) {
+      log(`  ${t}: suggestion failed — ${e.message}`);
+      failed++;
+    }
+    await new Promise(r=>setTimeout(r,120));
   }
 
-  saveATHStore(athStore); rebuildSummary();
-  showAlert(updated>0?'ainfo':'awarn',
-    updated>0
-      ?`&#x2713; Updated ${updated} ATH value(s) from 52-week highs.${failed?` (${failed} unavailable on free tier)`:''}`
-      :`No updates — ${failed}/${ALL.length} failed. 52-week high data may not be on Finnhub free tier. Edit ATH values manually.`
-  );
-  $('diag').style.display=failed===ALL.length?'block':'none';
-  btn.disabled=false;
+  saveATHStore(athStore);
+  // Recompute summary with new ATH values
+  const results = TICKERS.map(t => {
+    if (!lastPrices[t]) return {t, pct:null};
+    const ath = athStore[t]?.value || DEFAULT_ATH[t];
+    return {t, pct: ((lastPrices[t]-ath)/ath)*100};
+  });
+  updateSummary(results);
+
+  if (updated > 0) {
+    showAlert('ainfo', `&#x2713; Updated ${updated} ATH value(s) from 52-week highs. ${failed?`(${failed} unavailable on free tier)`:''} `
+      + `Note: 52-week high is a close proxy for ATH when the high was set recently — verify against Yahoo Finance for longer-term accuracy.`);
+  } else {
+    showAlert('awarn', `No ATH values were updated (current values may already be at or above 52-week highs, `
+      + `or 52-week high data is unavailable on the Finnhub free tier — ${failed}/${TICKERS.length} failed). `
+      + `You can still edit any ATH value manually by clicking on it.`);
+  }
+  $('diag').style.display = (failed===TICKERS.length) ? 'block' : 'none';
+  btn.disabled = false;
 }
 
-// ── Main load ─────────────────────────────────────────────────────────────
-async function loadAll(){
-  const apiKey=($('apikey').value.trim())||localStorage.getItem(KEY_STORE)||'';
-  const btn=$('rbtn'),sdot=$('sdot'),stxt=$('stxt'),ts=$('ts');
-  hideAlerts(); $('diag').textContent=''; $('diag').style.display='block';
+// ── Main load ────────────────────────────────────────────────────────────
+async function loadAll() {
+  const apiKey = $('apikey').value.trim() || localStorage.getItem(KEY_STORE) || '';
+  const btn=$('rbtn'), sdot=$('sdot'), stxt=$('stxt'), ts=$('ts'), diag=$('diag');
 
-  if(!apiKey){
+  hideAlerts(); diag.textContent=''; diag.style.display='block';
+
+  if (!apiKey) {
     sdot.className='err'; stxt.textContent='Key required';
-    showAlert('aerr','<strong>No API key.</strong> Paste your Finnhub key and click Apply & Load. Free key at <a href="https://finnhub.io" target="_blank">finnhub.io</a>.');
-    $('idxtbody').innerHTML=INDICES.map(s=>skRow(s.t,s.label,s.desc,true)).join('');
-    $('etftbody').innerHTML=ETFS.map(s=>skRow(s.t,s.label,s.desc,false)).join('');
-    ALL.forEach(s=>errRow(s.t,'no key')); return;
+    showAlert('aerr','<strong>No API key.</strong> Paste your 40-character Finnhub key and click Apply & Load. '
+      +'Free key at <a href="https://finnhub.io" target="_blank">finnhub.io</a>.');
+    $('tbody').innerHTML = TICKERS.map(t=>skRow(t,TICKER_NAMES[t])).join('');
+    TICKERS.forEach(t=>errRow(t,'no key'));
+    return;
   }
 
-  if(apiKey.length!==40) showAlert('awarn',`⚠ Key is ${apiKey.length} chars — expected 40. Check you copied it completely.`);
+  if (apiKey.length!==40) {
+    showAlert('awarn',`⚠ Your key is ${apiKey.length} characters — Finnhub free keys are 40 characters. Double-check you copied it completely.`);
+  }
 
   btn.disabled=true; sdot.className='spin'; sdot.style.background=''; stxt.textContent='Fetching…'; ts.textContent='';
-  $('idxtbody').innerHTML=INDICES.map(s=>skRow(s.t,s.label,s.desc,true)).join('');
-  $('etftbody').innerHTML=ETFS.map(s=>skRow(s.t,s.label,s.desc,false)).join('');
+  $('tbody').innerHTML = TICKERS.map(t=>skRow(t,TICKER_NAMES[t])).join('');
   ['sd','sdn','ss','ssn','sa','sc'].forEach(id=>$(id).textContent='—');
 
   log(`Key: ${apiKey.slice(0,8)}…${apiKey.slice(-4)} (${apiKey.length} chars)`);
-  log(`Origin: ${location.origin} | ${new Date().toISOString()}`);
-  log(`Fetching ${ALL.length} symbols…`);
-  log('─────────────────────────────────────────────────');
+  log(`Origin: ${location.origin} | Protocol: ${location.protocol}`);
+  log(`Time: ${new Date().toISOString()}`);
+  log('──────────────────────────────');
 
-  let ok=0,fail=0; const results=[];
+  let ok=0, fail=0; const results=[];
 
-  for(const s of ALL){
-    try{
-      const price=await fetchOne(s.t,apiKey);
-      lastPrices[s.t]=price;
-      let ath=athStore[s.t]?.value||s.ath;
-      if(price>ath){ ath=price; athStore[s.t]={value:ath,source:'live'}; saveATHStore(athStore); log(`  ${s.t}: new ATH → $${ath.toFixed(2)}`); }
-      const pct=fillRow(s.t,price,ath);
-      results.push({t:s.t,pct}); ok++;
-    } catch(e){
-      log(`  ${s.t}: FAILED — ${e.message}`);
-      errRow(s.t,e.message); results.push({t:s.t,pct:null}); fail++;
-      if(e.message==='invalid_key'||e.message==='forbidden'){
-        for(const rem of ALL.slice(ALL.findIndex(x=>x.t===s.t)+1)){
-          errRow(rem.t,'skipped'); results.push({t:rem.t,pct:null}); fail++;
+  for (const t of TICKERS) {
+    try {
+      const price = await fetchOne(t, apiKey);
+      lastPrices[t] = price;
+      let ath = athStore[t]?.value || DEFAULT_ATH[t];
+
+      // CORE FIX: drawdown can never be positive — if the current price
+      // has surpassed the stored ATH, the current price IS the new ATH.
+      if (price > ath) {
+        ath = price;
+        athStore[t] = { value: ath, source: 'live' };
+        saveATHStore(athStore);
+        log(`  ${t}: new all-time high! ATH auto-updated to $${ath.toFixed(2)}`);
+      }
+
+      const pct = fillRow(t, price, ath);
+      results.push({t, pct}); ok++;
+    } catch(e) {
+      log(`  ${t}: FAILED — ${e.message}`);
+      errRow(t, e.message); results.push({t,pct:null}); fail++;
+      if (e.message==='invalid_key'||e.message==='forbidden') {
+        for (const rem of TICKERS.slice(TICKERS.findIndex(x=>x===t)+1)) {
+          errRow(rem,'skipped'); results.push({t:rem,pct:null}); fail++;
         }
-        showAlert('aerr',`<strong>Key rejected (${e.message}).</strong> Go to <a href="https://finnhub.io/dashboard" target="_blank">finnhub.io/dashboard</a>, copy your key, paste above.`);
+        showAlert('aerr',`<strong>Key rejected by Finnhub (${e.message}).</strong><br>Go to <a href="https://finnhub.io/dashboard" target="_blank">finnhub.io/dashboard</a>, copy your key, paste above.`);
         break;
       }
     }
-    await new Promise(r=>setTimeout(r,130));
+    await new Promise(r=>setTimeout(r,120));
   }
 
   updateSummary(results);
   const now=new Date();
   const lbl=now.toLocaleDateString('en-SG',{day:'2-digit',month:'short',year:'numeric'})+'  '+now.toLocaleTimeString('en-SG',{hour:'2-digit',minute:'2-digit'});
   sdot.className=''; sdot.style.background=ok>0?'#22c55e':'#ef4444';
-  stxt.textContent=ok>0?`${ok}/${ALL.length} loaded`:'Failed';
+  stxt.textContent=ok>0?`${ok}/${TICKERS.length} loaded`:'Failed';
   ts.textContent=`Updated: ${lbl}`;
-  log('─────────────────────────────────────────────────');
+  log('──────────────────────────────');
   log(`Done: ${ok} ok, ${fail} failed`);
 
-  if(ok>0&&fail===0){ showAlert('aok',`&#x2713; All ${ok} symbols loaded.`); $('diag').style.display='none'; }
-  else if(ok>0&&fail>0){ showAlert('awarn',`${ok} loaded, ${fail} failed. See diagnostics.`); }
+  if (ok>0 && fail===0) { showAlert('aok',`&#x2713; All ${ok} tickers loaded.`); diag.style.display='none'; }
+  else if (ok>0 && fail>0) { showAlert('awarn',`${ok} loaded, ${fail} failed. See diagnostics.`); }
   btn.disabled=false;
 }
 </script>

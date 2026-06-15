@@ -124,7 +124,7 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
     <div class="hdr-top">
       <div>
         <h1>&#x2193; Equity <em>Drawdown</em> Monitor</h1>
-        <p class="tagline">Distance from all-time high &nbsp;·&nbsp; Indices via Stooq (no key) &nbsp;·&nbsp; ETFs via Finnhub</p>
+        <p class="tagline">Distance from all-time high &nbsp;·&nbsp; Indices via Yahoo Finance &nbsp;·&nbsp; ETFs via Finnhub</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-gold" id="testbtn" onclick="testConnection()">&#x1F50C; Test Key</button>
@@ -242,9 +242,9 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
 // ── Index proxies (Finnhub free does NOT support ^DJI / ^GSPC / ^IXIC directly)
 // Using ETF proxies: DIA ≈ Dow Jones, SPY ≈ S&P 500, QQQ ≈ Nasdaq 100
 const INDICES = [
-  { t:'^DJI',  stooq:'^dji',  label:'Dow Jones',        desc:'Dow Jones Industrial Average',  ath:45073.63 },
-  { t:'^IXIC', stooq:'^ndq',  label:'NASDAQ',           desc:'Nasdaq Composite Index',         ath:22222.61 },
-  { t:'^GSPC', stooq:'^spx',  label:'S&P 500',          desc:'S&P 500 Index',                  ath:6147.43  },
+  { t:'^DJI',  yahoo:'^DJI',  label:'Dow Jones',  desc:'Dow Jones Industrial Average',  ath:45073.63 },
+  { t:'^IXIC', yahoo:'^IXIC', label:'NASDAQ',      desc:'Nasdaq Composite Index',         ath:22222.61 },
+  { t:'^GSPC', yahoo:'^GSPC', label:'S&P 500',     desc:'S&P 500 Index',                  ath:6147.43  },
 ];
 
 const ETFS = [
@@ -400,24 +400,25 @@ function updateSummary(results){
 }
 
 // ── Fetch price — NO extra headers (avoids CORS preflight) ───────────────
-// ── Fetch index level from Stooq (free, no key, true index values) ────────
-async function fetchIndex(stooqSymbol){
-  // Stooq CSV: returns Symbol,Date,Time,Open,High,Low,Close,Volume
-  const url=`https://stooq.com/q/l/?s=${stooqSymbol}&f=sd2t2ohlcv&h&e=csv`;
-  log(`→ ${stooqSymbol} (Stooq)…`);
-  const res=await fetch(url);
-  log(`  ${stooqSymbol}: HTTP ${res.status}`);
-  if(!res.ok) throw new Error(`http_${res.status}`);
-  const text=await res.text();
-  log(`  ${stooqSymbol}: raw CSV = ${text.slice(0,120)}`);
-  // Parse CSV — second line is data row
-  const lines=text.trim().split('\n');
-  if(lines.length<2) throw new Error('no_data');
-  const cols=lines[1].split(',');
-  // cols: Symbol,Date,Time,Open,High,Low,Close,Volume
-  const close=parseFloat(cols[6]);
-  if(!isFinite(close)||close<=0) throw new Error('no_close');
-  return close;
+// ── Fetch index level via allorigins proxy → Yahoo Finance ────────────────
+// allorigins.win adds CORS headers server-side so this works from any browser.
+// Yahoo Finance ^DJI, ^GSPC, ^IXIC return true index point levels.
+async function fetchIndex(yahooSymbol){
+  const yUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?interval=1d&range=1d`;
+  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(yUrl)}`;
+  log(`→ ${yahooSymbol} via allorigins+Yahoo…`);
+  const res = await fetch(proxyUrl, {signal: AbortSignal.timeout(12000)});
+  log(`  ${yahooSymbol}: HTTP ${res.status}`);
+  if(!res.ok) throw new Error(`proxy_http_${res.status}`);
+  const wrapper = await res.json();
+  if(!wrapper.contents) throw new Error('no_proxy_contents');
+  const data = JSON.parse(wrapper.contents);
+  const meta = data?.chart?.result?.[0]?.meta;
+  if(!meta) throw new Error('no_meta');
+  const level = meta.regularMarketPrice ?? meta.previousClose;
+  if(!level || level <= 0) throw new Error('no_level');
+  log(`  ${yahooSymbol}: level=${level}`);
+  return level;
 }
 
 async function fetchOne(ticker, apiKey){
@@ -560,16 +561,16 @@ async function loadAll(){
 
   log(`Key: ${apiKey.slice(0,8)}…${apiKey.slice(-4)} (${apiKey.length} chars)`);
   log(`Origin: ${location.origin} | ${new Date().toISOString()}`);
-  log(`Indices (Stooq, no key): ${INDICES.length} | ETFs (Finnhub): ${ETFS.length}`);
+  log(`Indices (Yahoo via allorigins proxy): ${INDICES.length} | ETFs (Finnhub): ${ETFS.length}`);
   log('─────────────────────────────────────────────────');
 
   let ok=0,fail=0; const results=[];
 
   // ── INDICES: Stooq (free, no API key, true index point levels) ───────
-  log('\n── Indices via Stooq ──');
+  log('\n── Indices (Yahoo Finance via allorigins proxy) ──');
   for(const s of INDICES){
     try{
-      const level=await fetchIndex(s.stooq);
+      const level=await fetchIndex(s.yahoo);
       lastPrices[s.t]=level;
       let ath=athStore[s.t]?.value||s.ath;
       if(level>ath){ ath=level; athStore[s.t]={value:ath,source:'live'}; saveATHStore(athStore); log(`  ${s.label}: new ATH → ${ath.toLocaleString()}`); }

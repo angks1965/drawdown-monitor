@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Equity &amp; Index Drawdown Monitor</title>
+<title>Equity Drawdown Monitor</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -59,12 +59,9 @@ h1 em { color:var(--accent); font-style:normal; }
 .sval { font-size:22px; font-weight:700; font-variant-numeric:tabular-nums; }
 .ssub { font-size:11px; color:var(--muted); margin-top:2px; }
 
-.section-title { font-size:13px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--blue); margin-bottom:0.6rem; display:flex; align-items:center; gap:6px; margin-top:0.5rem; }
-.section-title.idx { color:var(--gold); }
-
-.twrap { border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:1.75rem; overflow-x:auto; background:var(--bg2); }
+.twrap { border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:1.5rem; overflow-x:auto; }
 table { width:100%; border-collapse:collapse; font-size:13.5px; min-width:680px; }
-thead th { background:rgba(255,255,255,0.02); font-size:10px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); text-align:left; padding:11px 14px; border-bottom:1px solid var(--border); }
+thead th { background:var(--bg2); font-size:10px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); text-align:left; padding:11px 14px; border-bottom:1px solid var(--border); }
 thead th.r { text-align:right; }
 tbody tr:hover td { background:rgba(255,255,255,.022); }
 tbody tr:not(:last-child) td { border-bottom:1px solid var(--border); }
@@ -72,7 +69,6 @@ td { padding:12px 14px; vertical-align:middle; }
 .r { text-align:right; }
 .tkw { display:flex; align-items:center; gap:10px; }
 .tkico { width:34px; height:34px; border-radius:8px; background:var(--bg3); border:1px solid var(--faint); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; color:var(--blue); flex-shrink:0; }
-.tkico.idx { color:var(--gold); border-color:rgba(245,158,11,0.25); }
 .tksym { font-weight:600; font-size:13px; }
 .tknm  { font-size:11px; color:var(--muted); margin-top:1px; }
 
@@ -97,7 +93,7 @@ td { padding:12px 14px; vertical-align:middle; }
 
 .ath-cell { display:flex; align-items:center; justify-content:flex-end; gap:6px; }
 .ath-input {
-  width:95px; background:var(--bg3); border:1px solid var(--faint); border-radius:5px;
+  width:78px; background:var(--bg3); border:1px solid var(--faint); border-radius:5px;
   color:var(--text); font-size:13px; padding:4px 7px; text-align:right;
   font-variant-numeric:tabular-nums; outline:none; font-family:inherit;
 }
@@ -118,7 +114,7 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
 
 @keyframes pu { 0%,100%{opacity:1} 50%{opacity:.25} }
 @keyframes sh { 0%,100%{opacity:.3} 50%{opacity:.75} }
-@media(max-width:560px){ body{padding:1.25rem 1rem} h1{font-size:18px} .tkico{display:none} .ath-input{width:75px} }
+@media(max-width:560px){ body{padding:1.25rem 1rem} h1{font-size:18px} .tkico{display:none} .ath-input{width:64px} }
 </style>
 </head>
 <body>
@@ -127,8 +123,8 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
   <header class="hdr">
     <div class="hdr-top">
       <div>
-        <h1>&#x2193; Equity &amp; Index <em>Drawdown</em> Monitor</h1>
-        <p class="tagline">Distance of indices and ETFs from their all-time high &nbsp;·&nbsp; Live via Finnhub</p>
+        <h1>&#x2193; Equity <em>Drawdown</em> Monitor</h1>
+        <p class="tagline">Distance of each ETF from its all-time high &nbsp;·&nbsp; Live prices via Finnhub + editable ATH</p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-purple" id="suggbtn" onclick="suggestATH()">
@@ -148,8 +144,8 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
     </div>
     <div class="meta">
       <span class="badge bl"><span id="sdot"></span>&nbsp;<span id="stxt">Ready</span></span>
-      <span class="badge bi">&#127758; Live prices: Finnhub API</span>
-      <span class="badge bp_">&#x1F4A1; Editable ATH + Auto-save</span>
+      <span class="badge bi">&#127758; Live prices: Finnhub</span>
+      <span class="badge bp_">&#x1F4A1; ATH: Editable + auto-suggest</span>
     </div>
     <p id="ts" style="font-size:11px;color:var(--muted);margin-top:6px"></p>
   </header>
@@ -157,11 +153,13 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
   <div class="keybar">
     <div class="keyrow">
       <label for="apikey">&#128273; Finnhub API key:</label>
-      <input type="text" id="apikey" placeholder="Paste your 40-character Finnhub key here" autocomplete="off" spellcheck="false" maxlength="50" />
+      <input type="text" id="apikey" placeholder="e.g. d8l5ou1r01qut1f95p1gd8l5ou1r01qut1f95p20" autocomplete="off" spellcheck="false" maxlength="50" />
       <button class="btn" onclick="saveAndLoad()" style="padding:6px 14px;font-size:12px">Apply &amp; Load &#x2192;</button>
     </div>
     <p class="keynote">
-      Free key at <a href="https://finnhub.io" target="_blank" rel="noopener">finnhub.io</a>. Indices map to their highly liquid underlying tracker funds (`DIA`, `QQQ`, `SPY`) to ensure data populates correctly on free plans.
+      Free key at <a href="https://finnhub.io" target="_blank" rel="noopener">finnhub.io</a> — sign up, go to Dashboard, copy your 40-character key. Saved in your browser.
+      <strong style="color:var(--text)">ATH values are editable</strong> — click any value in the All-Time High column to update it.
+      Click <strong style="color:#d8b4fe">Suggest ATH</strong> to auto-fill from each ETF's 52-week high.
     </p>
   </div>
 
@@ -174,47 +172,23 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
   <div class="sgrid">
     <div class="scard"><div class="slbl">Deepest drawdown</div><div class="sval" id="sd" style="color:var(--red)">—</div><div class="ssub" id="sdn">—</div></div>
     <div class="scard"><div class="slbl">Shallowest drawdown</div><div class="sval" id="ss" style="color:var(--green)">—</div><div class="ssub" id="ssn">—</div></div>
-    <div class="scard"><div class="slbl">Average drawdown</div><div class="sval" id="sa" style="color:var(--yellow)">—</div><div class="ssub" id="sasub">across tracked assets</div></div>
-    <div class="scard"><div class="slbl">In correction (&lt;&#8209;15%)</div><div class="sval" id="sc" style="color:var(--orange)">—</div><div class="ssub">Assets below &minus;15%</div></div>
+    <div class="scard"><div class="slbl">Average drawdown</div><div class="sval" id="sa" style="color:var(--yellow)">—</div><div class="ssub">across all 11 ETFs</div></div>
+    <div class="scard"><div class="slbl">In correction (&lt;&#8209;15%)</div><div class="sval" id="sc" style="color:var(--orange)">—</div><div class="ssub">ETFs below &minus;15%</div></div>
   </div>
 
-  <div class="section-title idx">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
-    Market Indices
-  </div>
   <div class="twrap">
     <table>
       <thead>
         <tr>
           <th style="width:14px"></th>
-          <th>Index Tracker</th>
-          <th class="r">Current Price</th>
-          <th class="r" style="min-width:180px">All&#8209;time high <span style="font-weight:400;text-transform:none;font-size:9px">(editable)</span></th>
+          <th>ETF</th>
+          <th class="r">Current price</th>
+          <th class="r" style="min-width:160px">All&#8209;time high <span style="font-weight:400;text-transform:none;font-size:9px">(editable)</span></th>
           <th class="r">Drawdown</th>
           <th class="r" style="min-width:120px">Depth</th>
         </tr>
       </thead>
-      <tbody id="tbody-indices"></tbody>
-    </table>
-  </div>
-
-  <div class="section-title">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M7 11h10"/><path d="M11 7v8"/></svg>
-    Exchange Traded Funds (ETFs)
-  </div>
-  <div class="twrap">
-    <table>
-      <thead>
-        <tr>
-          <th style="width:14px"></th>
-          <th>ETF Asset</th>
-          <th class="r">Current Price</th>
-          <th class="r" style="min-width:180px">All&#8209;time high <span style="font-weight:400;text-transform:none;font-size:9px">(editable)</span></th>
-          <th class="r">Drawdown</th>
-          <th class="r" style="min-width:120px">Depth</th>
-        </tr>
-      </thead>
-      <tbody id="tbody-etfs"></tbody>
+      <tbody id="tbody"></tbody>
     </table>
   </div>
 
@@ -226,36 +200,32 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
       <span class="li"><span class="ls" style="background:#ef4444"></span>&gt;25% — Bear territory</span>
     </div>
     <div style="line-height:1.6">
-      <span class="ath-src src-manual" style="margin-right:4px">manual</span> custom value &nbsp;
-      <span class="ath-src src-suggested" style="margin-right:4px">52w high</span> suggested &nbsp;
-      <span class="ath-src src-live" style="margin-right:4px">new high!</span> active peak<br>
-      ATH values are saved automatically in your browser's local storage.
+      <span class="ath-src src-manual" style="margin-right:4px">manual</span> you've set this value &nbsp;
+      <span class="ath-src src-suggested" style="margin-right:4px">52w high</span> auto-suggested &nbsp;
+      <span class="ath-src src-live" style="margin-right:4px">new high!</span> price exceeded ATH<br>
+      Prices: <a href="https://finnhub.io" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none">Finnhub.io</a>
+      &nbsp;|&nbsp; ATH values saved in your browser
     </div>
   </footer>
 </div>
 
 <script>
-const INDICES = ['DIA', 'QQQ', 'SPY'];
-const ETFS = ['VOO', 'SCHD', 'VXUS', 'URTH', 'IGV', 'SMH', 'SOXX', 'XLE', 'XLP'];
-const TICKERS = [...INDICES, ...ETFS];
-
+const TICKERS = ['VOO','QQQ','SCHD','SPY','VXUS','URTH','IGV','SMH','SOXX','XLE','XLP'];
 const TICKER_NAMES = {
-  DIA:'Dow Jones Industrial Average Trust', QQQ:'Nasdaq 100 ETF Trust', SPY:'SPDR S&P 500 ETF Trust',
-  VOO:'Vanguard S&P 500 ETF', SCHD:'Schwab US Dividend Equity ETF',
-  VXUS:'Vanguard Total Intl Stock ETF', URTH:'iShares MSCI World ETF',
+  VOO:'Vanguard S&P 500 ETF', QQQ:'Invesco Nasdaq 100 ETF', SCHD:'Schwab US Dividend Equity ETF',
+  SPY:'SPDR S&P 500 ETF Trust', VXUS:'Vanguard Total Intl Stock ETF', URTH:'iShares MSCI World ETF',
   IGV:'iShares Expanded Tech-SW ETF', SMH:'VanEck Semiconductor ETF', SOXX:'iShares Semiconductor ETF',
   XLE:'Energy Select Sector SPDR', XLP:'Consumer Staples Select SPDR'
 };
-
 const DEFAULT_ATH = {
-  DIA:450.00, QQQ:550.00, SPY:620.00, VOO:580.00, SCHD:90.00,
-  VXUS:72.00, URTH:150.00, IGV:95.00, SMH:280.00, SOXX:260.00, XLE:100.00, XLP:85.00
+  VOO:699.15, QQQ:748.65, SCHD:31.50, SPY:745.00, VXUS:71.20,
+  URTH:230.50, IGV:130.00, SMH:340.00, SOXX:325.00, XLE:110.50, XLP:92.50
 };
 
 const KEY_STORE = 'finnhub_key_ddm_v6';
 const ATH_STORE = 'ath_values_ddm_v6';
 const $ = id => document.getElementById(id);
-const log = msg => { const d=$('diag'); d.textContent+=msg+'\n'; d.scrollTop=d.scrollHeight; };
+const log = msg => { const d=$('diag'); if(d) { d.textContent+=msg+'\n'; d.scrollTop=d.scrollHeight; } };
 
 function loadATHStore() {
   try {
@@ -275,10 +245,12 @@ let lastPrices = {};
 window.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem(KEY_STORE);
   if (saved) $('apikey').value = saved;
-  $('sasub').textContent = `across all ${TICKERS.length} assets`;
   
-  $('tbody-indices').innerHTML = INDICES.map(t => skRow(t, TICKER_NAMES[t], true)).join('');
-  $('tbody-etfs').innerHTML = ETFS.map(t => skRow(t, TICKER_NAMES[t], false)).join('');
+  // Directly targeting your clean single table body format
+  const tbody = $('tbody');
+  if (tbody) {
+    tbody.innerHTML = TICKERS.map(t => skRow(t, TICKER_NAMES[t])).join('');
+  }
   
   TICKERS.forEach(t => {
     const row = document.querySelector(`tr[data-t="${t}"]`);
@@ -296,184 +268,14 @@ function saveAndLoad() {
 
 function ddCls(p){ const a=Math.abs(p); return a<5?'dg':a<15?'dy':a<25?'do':'dr'; }
 function ddCol(p){ const a=Math.abs(p); return a<5?'#22c55e':a<15?'#eab308':a<25?'#f97316':'#ef4444'; }
-function hideAlerts(){ ['aerr','aok','awarn','ainfo'].forEach(id=>$(id).style.display='none'); }
-function showAlert(id,html){ hideAlerts(); $(id).innerHTML=html; $(id).style.display='block'; }
+function hideAlerts(){ ['aerr','aok','awarn','ainfo'].forEach(id=>{ const el=$(id); if(el) el.style.display='none'; }); }
+function showAlert(id,html){ hideAlerts(); const el=$(id); if(el) { el.innerHTML=html; el.style.display='block'; } }
 
-function skRow(t, n, isIndex){
-  const iconCls = isIndex ? 'tkico idx' : 'tkico';
+function skRow(t,n){
   return `<tr data-t="${t}">
     <td><span class="rd spin" id="dot-${t}"></span></td>
-    <td><div class="tkw"><div class="${iconCls}">${t.slice(0,4)}</div>
+    <td><div class="tkw"><div class="tkico">${t.slice(0,4)}</div>
       <div><div class="tksym">${t}</div><div class="tknm">${n}</div></div></div></td>
     <td class="r"><span class="sk" style="width:60px"></span></td>
     <td class="r"><span class="sk" style="width:90px"></span></td>
-    <td class="r"><span class="sk" style="width:72px"></span></td>
-    <td><div class="bw"><div class="bt"><div class="bf" style="width:0;background:#333"></div></div>
-      <span class="sk" style="width:30px"></span></div></td></tr>`;
-}
-
-function renderATHCell(t) {
-  const entry = athStore[t] || { value: DEFAULT_ATH[t], source: 'manual' };
-  let srcCls, srcLabel, srcTitle;
-  if (entry.source === 'live') {
-    srcCls = 'src-live'; srcLabel = 'new high!';
-    srcTitle = 'Exceeded previous ATH. Edited live.';
-  } else if (entry.source === 'suggested') {
-    srcCls = 'src-suggested'; srcLabel = '52w high';
-    srcTitle = 'Auto-populated via metric endpoint.';
-  } else {
-    srcCls = 'src-manual'; srcLabel = 'manual';
-    srcTitle = 'Manually input value.';
-  }
-  return `<div class="ath-cell">
-    <span class="ath-src ${srcCls}" title="${srcTitle}">${srcLabel}</span>
-    <input type="number" step="0.01" class="ath-input ${entry.source!=='manual'?'suggested':''}"
-      id="ath-${t}" value="${Number(entry.value).toFixed(2)}"
-      onchange="onATHEdit('${t}', this.value)" />
-  </div>`;
-}
-
-function onATHEdit(t, val) {
-  const num = parseFloat(val);
-  if (!isFinite(num) || num <= 0) return;
-  athStore[t] = { value: num, source: 'manual' };
-  saveATHStore(athStore);
-  if (lastPrices[t]) fillDrawdown(t, lastPrices[t], num);
-}
-
-function fillDrawdown(t, price, ath) {
-  const row = document.querySelector(`tr[data-t="${t}"]`);
-  if (!row) return null;
-  const pct = ((price - ath) / ath) * 100;
-  const cls = ddCls(pct), col = ddCol(pct), bw = Math.min(Math.abs(pct)/40*100,100).toFixed(1);
-  row.cells[4].innerHTML = `<span class="dd ${cls}">${pct.toFixed(2)}%</span>`;
-  row.cells[5].innerHTML = `<div class="bw"><div class="bt"><div class="bf" style="width:${bw}%;background:${col}"></div></div><span class="bp">${Math.abs(pct).toFixed(1)}%</span></div>`;
-  return pct;
-}
-
-function fillRow(t, price, ath) {
-  const row = document.querySelector(`tr[data-t="${t}"]`);
-  if (!row) return null;
-  $(`dot-${t}`).className = 'rd ok';
-  row.cells[2].innerHTML = `<span style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">$${price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`;
-  row.cells[3].innerHTML = renderATHCell(t);
-  return fillDrawdown(t, price, ath);
-}
-
-function errRow(t, reason) {
-  const row = document.querySelector(`tr[data-t="${t}"]`);
-  if (!row) return;
-  $(`dot-${t}`).className = 'rd err';
-  row.cells[2].innerHTML = `<span style="color:var(--muted)">—</span>`;
-  row.cells[4].innerHTML = `<span class="dd dn" style="font-size:11px">${reason||'Error'}</span>`;
-}
-
-function updateSummary(results) {
-  const v = results.filter(r=>r.pct!==null);
-  if (!v.length) { ['sd','sdn','ss','ssn','sa','sc'].forEach(id=>$(id).textContent='—'); return; }
-  const deep=v.reduce((a,b)=>b.pct<a.pct?b:a), shal=v.reduce((a,b)=>b.pct>a.pct?b:a);
-  const avg=v.reduce((s,r)=>s+r.pct,0)/v.length;
-
-  $('sd').textContent=deep.pct.toFixed(2)+'%'; $('sdn').textContent=deep.t;
-  $('ss').textContent=shal.pct.toFixed(2)+'%'; $('ssn').textContent=shal.t;
-  $('sa').textContent=avg.toFixed(2)+'%';
-  $('sc').textContent=v.filter(r=>r.pct<-15.0).length;
-}
-
-async function fetchOne(ticker, apiKey) {
-  const url = `https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${apiKey}`;
-  log(`→ ${ticker} ...`);
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const d = await res.json();
-  const price = d.c || d.pc;
-  if (!price || price <= 0) throw new Error('No Price');
-  return price;
-}
-
-async function fetchSuggestedATH(ticker, apiKey) {
-  const url = `https://finnhub.io/api/v1/stock/metric?symbol=${ticker}&metric=price&token=${apiKey}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const d = await res.json();
-  const high = d?.metric?.['52WeekHigh'];
-  if (!high || high<=0) throw new Error('No Metric');
-  return high;
-}
-
-async function suggestATH() {
-  const apiKey = $('apikey').value.trim() || localStorage.getItem(KEY_STORE) || '';
-  if (!apiKey) { showAlert('aerr','API key required.'); return; }
-  $('suggbtn').disabled = true; $('diag').style.display = 'block';
-  log('\n── Fetching 52-Week Peaks ──');
-  let updated = 0;
-
-  for (const t of TICKERS) {
-    try {
-      const high = await fetchSuggestedATH(t, apiKey);
-      log(`  ${t}: 52w high = ${high.toFixed(2)}`);
-      const currentPrice = lastPrices[t] || 0;
-      const targetHigh = Math.max(high, currentPrice);
-
-      athStore[t] = { value: targetHigh, source: 'suggested' };
-      updated++;
-      const row = document.querySelector(`tr[data-t="${t}"]`);
-      if (row) {
-        row.cells[3].innerHTML = renderATHCell(t);
-        if (lastPrices[t]) fillDrawdown(t, lastPrices[t], targetHigh);
-      }
-    } catch(e) {
-      log(`  ${t}: failed — ${e.message}`);
-    }
-    await new Promise(r=>setTimeout(r,100));
-  }
-  saveATHStore(athStore);
-  $('suggbtn').disabled = false;
-}
-
-async function loadAll() {
-  const apiKey = $('apikey').value.trim() || localStorage.getItem(KEY_STORE) || '';
-  const btn=$('rbtn'), sdot=$('sdot'), stxt=$('stxt'), ts=$('ts'), diag=$('diag');
-  hideAlerts(); diag.textContent=''; diag.style.display='block';
-
-  if (!apiKey) {
-    sdot.className='err'; stxt.textContent='Key required';
-    showAlert('aerr','<strong>Missing API key.</strong> Please configure your Finnhub credential.');
-    return;
-  }
-
-  btn.disabled=true; sdot.className='spin'; stxt.textContent='Loading…';
-  const results = [];
-
-  for (const t of TICKERS) {
-    try {
-      const price = await fetchOne(t, apiKey);
-      lastPrices[t] = price;
-      let ath = athStore[t]?.value || DEFAULT_ATH[t];
-
-      if (price > ath) {
-        ath = price;
-        athStore[t] = { value: ath, source: 'live' };
-        saveATHStore(athStore);
-      }
-
-      const pct = fillRow(t, price, ath);
-      results.push({t, pct});
-    } catch(e) {
-      log(`  ${t}: Error — ${e.message}`);
-      errRow(t, e.message);
-      results.push({t, pct:null});
-    }
-    await new Promise(r=>setTimeout(r,100));
-  }
-
-  updateSummary(results);
-  const now=new Date();
-  ts.textContent=`Updated: ${now.toLocaleTimeString()}`;
-  sdot.className=''; sdot.style.background='#22c55e';
-  stxt.textContent='Data Loaded';
-  btn.disabled=false;
-}
-</script>
-</body>
-</html>
+    <td class="r"><span class="sk

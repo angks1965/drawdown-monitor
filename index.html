@@ -1,3 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+<title>Equity Drawdown Monitor</title> 
+<style> 
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; } 
+:root {
+  --bg:#0f1117; --bg2:#1a1d27; --bg3:#1e2435;
+  --text:#e8eaf0; --muted:#8891a8; --faint:#2d3555; --border:rgba(255,255,255,0.07);
+  --green:#22c55e; --yellow:#eab308; --orange:#f97316; --red:#ef4444;
+  --blue:#60a5fa; --accent:#6366f1; --gold:#f59e0b; 
+} 
+body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; min-height:100vh; padding:2rem 1.5rem; } 
+.wrap { max-width:960px; margin:0 auto; }
+
+.hdr { margin-bottom:1.75rem; padding-bottom:1.25rem; border-bottom:1px solid var(--border); } 
+.hdr-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; }
+h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; display: flex; align-items: center; gap: 0.5rem; }
+.vtag { font-size: 10px; background: var(--faint); color: var(--muted); padding: 2px 6px; border-radius: 4px; font-weight: 500; vertical-align: middle; }
+.subtitle { color: var(--muted); font-size: 0.875rem; margin-top: 0.25rem; }
+
+.status-bar { display: flex; align-items: center; gap: 0.75rem; background: var(--bg2); padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); font-size: 0.8125rem; }
+.rd { width: 8px; height: 8px; border-radius: 50%; background: #4b5563; display: inline-block; position: relative; }
+.rd.spin { background: transparent; border: 2px solid var(--muted); border-top-color: transparent; animation: spin 0.8s linear infinite; }
+.rd.ok { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.rd.err { background: var(--red); box-shadow: 0 0 8px var(--red); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ts { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.cfg-panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; }
+.cfg-grid { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem; align-items: center; }
+@media (max-width: 640px) { .cfg-grid { grid-template-columns: 1fr; } }
+.input-grp { position: relative; display: flex; align-items: center; }
+.input-lbl { position: absolute; left: 0.75rem; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; pointer-events: none; }
+.cfg-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 0.625rem 0.75rem 0.625rem 4.2rem; font-size: 0.875rem; font-family: monospace; transition: border-color 0.15s; }
+.cfg-input:focus { outline: none; border-color: var(--accent); }
+.btn-row { display: flex; gap: 0.5rem; justify-content: flex-end; }
+.btn { background: var(--accent); color: #fff; border: none; padding: 0.625rem 1rem; font-size: 0.875rem; font-weight: 600; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.375rem; transition: opacity 0.15s; }
+.btn:hover:not(:disabled) { opacity: 0.9; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn.sec { background: var(--faint); color: var(--text); border: 1px solid var(--border); }
+
+.alert { padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.875rem; margin-bottom: 1.5rem; display: none; line-height: 1.4; border-left: 4px solid transparent; }
+.alert-err { background: rgba(239,68,68,0.1); color: #fca5a5; border-color: var(--red); }
+.alert-err a { color: #fca5a5; font-weight: 600; }
+.alert-ok { background: rgba(34,197,94,0.1); color: #86efac; border-color: var(--green); }
+.alert-warn { background: rgba(234,179,8,0.1); color: #fef08a; border-color: var(--yellow); }
+.alert-warn code, .alert-err code { background: rgba(0,0,0,0.2); padding: 2px 4px; border-radius: 4px; font-family: monospace; font-size: 12px; }
+.alert-info { background: rgba(96,165,250,0.1); color: #93c5fd; border-color: var(--blue); }
+
+.summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; position: relative; overflow: hidden; }
+.card-lbl { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.card-val { font-size: 1.625rem; font-weight: 700; margin-top: 0.25rem; letter-spacing: -0.025em; font-variant-numeric: tabular-nums; }
+.card-sub { font-size: 11px; color: var(--muted); margin-top: 0.125rem; }
+.card.deep { border-left: 4px solid var(--red); }
+.card.shal { border-left: 4px solid var(--green); }
+
+.sect-title { font-size: 0.875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 1.5rem 0 0.75rem 0; display: flex; align-items: center; gap: 0.5rem; }
+.sect-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.tbl-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem; }
+th { background: var(--bg3); color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+td { padding: 0.875rem 1rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.01); }
+
+.tkw { display: flex; align-items: center; gap: 0.75rem; }
+.tkico { width: 36px; height: 36px; background: var(--faint); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--blue); letter-spacing: -0.02em; }
+.tkico.idx { color: var(--gold); }
+.tksym { font-weight: 600; color: var(--text); }
+.tknm { font-size: 11px; color: var(--muted); margin-top: 0.125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; }
+
+.r { text-align: right; }
+.dd { font-weight: 600; font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
+.dd.dg { color: var(--green); }
+.dd.dy { color: var(--yellow); }
+.dd.do { color: var(--orange); }
+.dd.dr { color: var(--red); }
+.dd.dn { color: var(--muted); font-weight: 400; }
+
+.ath-cell { display: inline-flex; flex-direction: column; align-items: flex-end; gap: 2px; position: relative; }
+.ath-input { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); width: 85px; padding: 3px 6px; font-size: 13px; font-family: monospace; text-align: right; font-variant-numeric: tabular-nums; transition: border-color 0.15s; }
+.ath-input:focus { outline: none; border-color: var(--accent); }
+.ath-input.auto { border-style: dashed; color: #93c5fd; }
+.ath-src { font-size: 9px; text-transform: uppercase; font-weight: 600; padding: 1px 4px; border-radius: 3px; letter-spacing: 0.02em; }
+.src-manual { background: var(--faint); color: var(--muted); }
+.src-suggested { background: rgba(96,165,250,0.15); color: #93c5fd; }
+.src-live { background: rgba(34,197,94,0.15); color: #86efac; }
+
+.bw { display: flex; align-items: center; gap: 0.5rem; justify-content: flex-end; min-width: 120px; }
+.bt { width: 60px; height: 6px; background: var(--faint); border-radius: 3px; overflow: hidden; position: relative; }
+.bf { height: 100%; border-radius: 3px; transition: width 0.3s; }
+.bp { font-size: 11px; font-family: monospace; color: var(--muted); font-variant-numeric: tabular-nums; width: 32px; text-align: right; }
+
+.diag-log { background: #07080b; border: 1px solid var(--border); border-radius: 8px; padding: 0.875rem; font-family: monospace; font-size: 11px; color: #a7f3d0; line-height: 1.5; white-space: pre-wrap; overflow-y: auto; max-height: 220px; margin-top: 1.5rem; display: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
+
+.sk { display: inline-block; height: 14px; background: var(--faint); border-radius: 4px; animation: pulse 1.5s infinite ease-in-out; vertical-align: middle; }
+@keyframes pulse { 0%, 100% { opacity:0.6; } 50% { opacity:0.3; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="hdr">
+    <div class="hdr-top">
+      <div>
+        <h1>Equity Drawdown Monitor <span class="vtag">v8.2-Fixed</span></h1>
+        <div class="subtitle">Peak tracking and historical drawdowns relative to All-Time Highs (ATH)</div>
+      </div>
+      <div class="status-bar">
+        <span id="sdot" style="background:#4b5563" class="rd"></span>
+        <span id="stxt" style="font-weight:600">Not loaded</span>
+        <span style="color:var(--border)">|</span>
+        <span id="ts" class="ts">Enter your Finnhub API key to load market data</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cfg-panel">
+    <div class="cfg-grid">
+      <div class="input-grp">
+        <div class="input-lbl">API Key</div>
+        <input type="password" id="apikey" class="cfg-input" placeholder="Paste your 40-character Finnhub free token here..." autocomplete="off" />
+      </div>
+      <div class="btn-row">
+        <button type="button" id="testbtn" class="btn sec" onclick="testConnection()">Test Connection</button>
+        <button type="button" id="suggbtn" class="btn sec" onclick="suggestATH()" title="Fetch 52-week highs from Finnhub to auto-update ATH values where applicable">Suggest ATH</button>
+        <button type="button" id="rbtn" class="btn" onclick="saveAndLoad()">Apply &amp; Load</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="origin-warn" class="alert alert-warn" style="display:none">
+    <strong>Security / Protocol Notice:</strong> File running from <code><span id="origin-val"></span></code>. 
+    If network requests block or crash, verify your tracking preferences or browser security configuration.
+  </div>
+
+  <div id="aerr" class="alert alert-err"></div>
+  <div id="awarn" class="alert alert-warn"></div>
+  <div id="aok" class="alert alert-ok"></div>
+  <div id="ainfo" class="alert alert-info"></div>
+
+  <div class="summary-cards">
+    <div class="card deep">
+      <div class="card-lbl">Deepest Drawdown</div>
+      <div class="card-val id="sd"—</div>
+      <div class="card-sub" id="sdn">—</div>
+    </div>
+    <div class="card shal">
+      <div class="card-lbl">Shallowest Drawdown</div>
+      <div class="card-val" id="ss">—</div>
+      <div class="card-sub" id="ssn">—</div>
+    </div>
+    <div class="card">
+      <div class="card-lbl">Average Drawdown</div>
+      <div class="card-val" id="sa" style="color:var(--blue)">—</div>
+      <div class="card-sub">All monitored equities</div>
+    </div>
+    <div class="card">
+      <div class="card-lbl">Correction Alert</div>
+      <div class="card-val" id="sc" style="color:var(--orange)">—</div>
+      <div class="card-sub">Assets down &gt; 15%</div>
+    </div>
+  </div>
+
+  <div class="sect-title">Broad Market Indexes</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:28px"></th>
+          <th>Index Description</th>
+          <th class="r" style="width:110px">Current Level</th>
+          <th class="r" style="width:130px">All-Time High (ATH)</th>
+          <th class="r" style="width:100px">Drawdown</th>
+          <th style="width:150px"></th>
+        </tr>
+      </thead>
+      <tbody id="idxtbody">
+        <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem;">Click Apply &amp; Load to populate historical charts</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sect-title">Core Exchange-Traded Funds (ETFs)</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:28px"></th>
+          <th>ETF Description</th>
+          <th class="r" style="width:110px">Current Price</th>
+          <th class="r" style="width:130px">All-Time High (ATH)</th>
+          <th class="r" style="width:100px">Drawdown</th>
+          <th style="width:150px"></th>
+        </tr>
+      </thead>
+      <tbody id="etftbody">
+        <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem;">Click Apply &amp; Load to populate core tracking lists</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <pre id="diag" class="diag-log"></pre>
+</div>
+
 <script>
 const INDICES = [
   { t:'^DJI',  yahoo:'^DJI',  label:'Dow Jones',  desc:'Dow Jones Industrial Average',  ath:45073.63 },
@@ -149,20 +359,18 @@ function updateSummary(results){
 }
 
 async function fetchIndex(yahooSymbol){
-  // Switched to option chain endpoint which provides reliable, lightweight quote metadata
+  // Switched to lightning-fast corsproxy.io wrapper + stable optionChain endpoint
   const yUrl = `https://query1.finance.yahoo.com/v7/finance/options/${encodeURIComponent(yahooSymbol)}`;
-  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(yUrl)}`;
-  log(`→ ${yahooSymbol} via allorigins+Yahoo…`);
+  const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(yUrl)}`;
+  log(`→ ${yahooSymbol} via corsproxy+Yahoo…`);
   
-  const res = await fetch(proxyUrl, {signal: AbortSignal.timeout(12000)});
+  // High 15s allowance window to mitigate pipeline drop aborts entirely
+  const res = await fetch(proxyUrl, {signal: AbortSignal.timeout(15000)});
   log(`  ${yahooSymbol}: HTTP ${res.status}`);
   if(!res.ok) throw new Error(`proxy_http_${res.status}`);
   
-  const wrapper = await res.json();
-  if(!wrapper.contents) throw new Error('no_proxy_contents');
-  
-  // Handle strings vs already parsed objects gracefully
-  const data = typeof wrapper.contents === 'string' ? JSON.parse(wrapper.contents) : wrapper.contents;
+  const rawText = await res.text();
+  const data = JSON.parse(rawText);
   const quote = data?.optionChain?.result?.[0]?.quote;
   if(!quote) throw new Error('no_quote_data');
   
@@ -219,160 +427,4 @@ async function testConnection(){
 
   log('Test: Fetching VOO…');
   try{
-    const url=`https://finnhub.io/api/v1/quote?symbol=VOO&token=${apiKey}`;
-    log(`URL: ${url.replace(apiKey,'***')}`);
-    const res=await fetch(url);
-    log(`HTTP: ${res.status}`);
-    const text=await res.text();
-    log(`Body: ${text.slice(0,300)}`);
-    if(res.ok){
-      const d=JSON.parse(text);
-      const price=(d.c&&d.c>0)?d.c:d.pc;
-      if(price>0){
-        log(`✓ VOO = $${price}`);
-        showAlert('aok',`&#x2713; <strong>Connected!</strong> VOO = $${price.toFixed(2)}. Click <strong>Apply &amp; Load</strong> to fetch all 14 symbols.`);
-        $('diag').style.display='none';
-      } else {
-        log(`✗ Got price=0 — market may be closed. pc=${d.pc}`);
-        showAlert('awarn',`Key works but price=0 — market is likely closed. Previous close: $${d.pc}. Try Apply & Load anyway.`);
-      }
-    } else {
-      if(res.status===401) showAlert('aerr','<strong>HTTP 401 — Key rejected.</strong> Check your key at <a href="https://finnhub.io/dashboard" target="_blank">finnhub.io/dashboard</a>.');
-      else if(res.status===403) showAlert('aerr',`<strong>HTTP 403 — Forbidden.</strong> Body: <code>${text.slice(0,80)}</code><br>Try a different network or wait 60 seconds (rate limit).`);
-      else if(res.status===429) showAlert('awarn','<strong>HTTP 429 — Rate limited.</strong> Wait 60 seconds then try again.');
-      else showAlert('aerr',`<strong>HTTP ${res.status}.</strong> <code>${text.slice(0,100)}</code>`);
-    }
-  } catch(e){
-    log(`✗ Network error: ${e.message}`);
-    showAlert('aerr',`<strong>Network error: ${e.message}</strong><br>`
-      +`Make sure you are on <code>https://</code> — not <code>file://</code> or <code>edge://external-file</code>.<br>`
-      +`Current origin: <code>${location.origin}</code>`);
-  }
-  btn.disabled=false;
-}
-
-async function suggestATH(){
-  const apiKey=($('apikey').value.trim())||localStorage.getItem(KEY_STORE)||'';
-  const btn=$('suggbtn');
-  if(!apiKey){ showAlert('aerr','<strong>API key required.</strong> Enter your key first.'); return; }
-  btn.disabled=true; $('diag').style.display='block';
-  log('\n── Suggest ATH ─────────────────────────────────');
-  let updated=0, failed=0;
-
-  for(const s of ALL){
-    try{
-      const high=await fetchSuggestedATH(s.t,apiKey);
-      const price=lastPrices[s.t]||0;
-      const candidate=Math.max(high,price);
-      const source=price>=high?'live':'suggested';
-      const current=athStore[s.t]?.value||0;
-      if(candidate>current||athStore[s.t]?.source!=='manual'){
-        athStore[s.t]={value:candidate,source};
-        updated++;
-        const row=document.querySelector(`tr[data-t="${s.t}"]`);
-        if(row){ row.cells[3].innerHTML=renderATHCell(s.t); if(lastPrices[s.t]) fillDrawdown(s.t,lastPrices[s.t],candidate); }
-        log(`  ${s.t}: ATH → $${candidate.toFixed(2)} [${source}]`);
-      } else { log(`  ${s.t}: no update (stored $${current.toFixed(2)} >= suggested $${candidate.toFixed(2)})`); }
-    } catch(e){ log(`  ${s.t}: failed — ${e.message}`); failed++; }
-    await new Promise(r=>setTimeout(r,130));
-  }
-
-  saveATHStore(athStore); rebuildSummary();
-  showAlert(updated>0?'ainfo':'awarn',
-    updated>0
-      ?`&#x2713; Updated ${updated} ATH value(s) from 52-week highs.${failed?` (${failed} unavailable on free tier)`:''}`
-      :`No updates — ${failed}/${ALL.length} failed. 52-week high data may not be on Finnhub free tier. Edit ATH values manually.`
-  );
-  $('diag').style.display=failed===ALL.length?'block':'none';
-  btn.disabled=false;
-}
-
-async function loadAll(){
-  const apiKey=($('apikey').value.trim())||localStorage.getItem(KEY_STORE)||'';
-  const btn=$('rbtn'),sdot=$('sdot'),stxt=$('stxt'),ts=$('ts');
-  hideAlerts(); $('diag').textContent=''; $('diag').style.display='block';
-
-  if(!apiKey){
-    sdot.className='err'; stxt.textContent='Key required';
-    showAlert('aerr','<strong>No API key.</strong> Paste your Finnhub key and click Apply & Load. Free key at <a href="https://finnhub.io" target="_blank">finnhub.io</a>.');
-    $('idxtbody').innerHTML=INDICES.map(s=>skRow(s.t,s.label,s.desc,true)).join('');
-    $('etftbody').innerHTML=ETFS.map(s=>skRow(s.t,s.label,s.desc,false)).join('');
-    ALL.forEach(s=>errRow(s.t,'no key')); return;
-  }
-
-  if(apiKey.length!==40) showAlert('awarn',`⚠ Key is ${apiKey.length} chars — expected 40. Check you copied it completely.`);
-
-  btn.disabled=true; sdot.className='spin'; sdot.style.background=''; stxt.textContent='Fetching…'; ts.textContent='';
-  $('idxtbody').innerHTML=INDICES.map(s=>skRow(s.t,s.label,s.desc,true)).join('');
-  $('etftbody').innerHTML=ETFS.map(s=>skRow(s.t,s.label,s.desc,false)).join('');
-  ['sd','sdn','ss','ssn','sa','sc'].forEach(id=>$(id).textContent='—');
-
-  log(`Key: ${apiKey.slice(0,8)}…${apiKey.slice(-4)} (${apiKey.length} chars)`);
-  log(`Origin: ${location.origin} | ${new Date().toISOString()}`);
-  log(`Indices (Yahoo via allorigins proxy): ${INDICES.length} | ETFs (Finnhub): ${ETFS.length}`);
-  log('─────────────────────────────────────────────────');
-
-  let ok=0,fail=0; const results=[];
-
-  log('\n── Indices (Yahoo Finance via allorigins proxy) ──');
-  for(const s of INDICES){
-    try{
-      const level=await fetchIndex(s.yahoo);
-      lastPrices[s.t]=level;
-      let ath=athStore[s.t]?.value||s.ath;
-      if(level>ath){ ath=level; athStore[s.t]={value:ath,source:'live'}; saveATHStore(athStore); log(`  ${s.label}: new ATH → ${ath.toLocaleString()}`); }
-      const row=document.querySelector(`tr[data-t="${s.t}"]`);
-      if(row){
-        const dotId='dot-'+s.t.replace(/[^a-zA-Z0-9]/g,'_');
-        const dotEl=document.getElementById(dotId);
-        if(dotEl) dotEl.className='rd ok';
-        row.cells[2].innerHTML=`<span style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">${level.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>`;
-        row.cells[3].innerHTML=renderATHCell(s.t);
-      }
-      const pct=fillDrawdown(s.t,level,ath);
-      results.push({t:s.t,label:s.label,pct}); ok++;
-    } catch(e){
-      log(`  ${s.label}: FAILED — ${e.message}`);
-      errRow(s.t,e.message); results.push({t:s.t,label:s.label,pct:null}); fail++;
-    }
-    await new Promise(r=>setTimeout(r,400));
-  }
-
-  log('\n── ETFs via Finnhub ──');
-  for(const s of ETFS){
-    try{
-      const price=await fetchOne(s.t,apiKey);
-      lastPrices[s.t]=price;
-      let ath=athStore[s.t]?.value||s.ath;
-      if(price>ath){ ath=price; athStore[s.t]={value:ath,source:'live'}; saveATHStore(athStore); log(`  ${s.t}: new ATH → $${ath.toFixed(2)}`); }
-      const pct=fillRow(s.t,price,ath);
-      results.push({t:s.t,label:s.t,pct}); ok++;
-    } catch(e){
-      log(`  ${s.t}: FAILED — ${e.message}`);
-      errRow(s.t,e.message); results.push({t:s.t,label:s.t,pct:null}); fail++;
-      if(e.message==='invalid_key'||e.message==='forbidden'){
-        for(const rem of ETFS.slice(ETFS.findIndex(x=>x.t===s.t)+1)){
-          errRow(rem.t,'skipped'); results.push({t:rem.t,label:rem.t,pct:null}); fail++;
-        }
-        showAlert('aerr',`<strong>Key rejected (${e.message}).</strong> Go to <a href="https://finnhub.io/dashboard" target="_blank">finnhub.io/dashboard</a>, copy your key, paste above.`);
-        break;
-      }
-    }
-    await new Promise(r=>setTimeout(r,130));
-  }
-
-  updateSummary(results);
-  const now=new Date();
-  const lbl=now.toLocaleDateString('en-SG',{day:'2-digit',month:'short',year:'numeric'})+'  '+now.toLocaleTimeString('en-SG',{hour:'2-digit',minute:'2-digit'});
-  sdot.className=''; sdot.style.background=ok>0?'#22c55e':'#ef4444';
-  const total=INDICES.length+ETFS.length;
-  stxt.textContent=ok>0?`${ok}/${total} loaded`:'Failed';
-  ts.textContent=`Updated: ${lbl} · Indices: Yahoo Proxy · ETFs: Finnhub`;
-  log('─────────────────────────────────────────────────');
-  log(`Done: ${ok} ok, ${fail} failed`);
-
-  if(ok>0&&fail===0){ showAlert('aok',`&#x2713; All ${ok} symbols loaded (${INDICES.length} indices via Yahoo Proxy + ${ETFS.length} ETFs via Finnhub).`); $('diag').style.display='none'; }
-  else if(ok>0&&fail>0){ showAlert('awarn',`${ok} loaded, ${fail} failed. If S&P failed, verify your network settings or try again.`); }
-  btn.disabled=false;
-}
-</script>
+    const url=`https://fin

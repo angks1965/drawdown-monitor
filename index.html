@@ -60,7 +60,8 @@ h1 em { color:var(--accent); font-style:normal; }
 .sval { font-size:22px; font-weight:700; font-variant-numeric:tabular-nums; }
 .ssub { font-size:11px; color:var(--muted); margin-top:2px; }
 
-.section-title { font-size:14px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--blue); margin-bottom:0.75rem; display:flex; align-items:center; gap:6px; }
+.section-title { font-size:14px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--blue); margin-bottom:0.75rem; display:flex; align-items:center; gap:6px; margin-top:0.5rem; }
+.section-title.idx { color:var(--gold); }
 
 .twrap { border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:1.75rem; overflow-x:auto; background:var(--bg2); }
 table { width:100%; border-collapse:collapse; font-size:13.5px; min-width:680px; }
@@ -73,7 +74,7 @@ td { padding:12px 14px; vertical-align:middle; }
 .r { text-align:right; }
 .c { text-align:center; }
 .tkw { display:flex; align-items:center; gap:10px; }
-.tkico { width:34px; height:34px; border-radius:8px; background:var(--bg3); border:1px solid var(--faint); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; color:var(--accent); flex-shrink:0; }
+.tkico { width:34px; height:34px; border-radius:8px; background:var(--bg3); border:1px solid var(--faint); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; color:var(--blue); flex-shrink:0; }
 .tkico.idx { color:var(--gold); border-color:rgba(245,158,11,0.25); }
 .tksym { font-weight:600; font-size:13px; }
 .tknm  { font-size:11px; color:var(--muted); margin-top:1px; }
@@ -184,7 +185,7 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
     <div class="scard"><div class="slbl">In correction (&lt;&#8209;15%)</div><div class="sval" id="sc" style="color:var(--orange)">—</div><div class="ssub">Assets below &minus;15%</div></div>
   </div>
 
-  <div class="section-title">
+  <div class="section-title idx">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
     Market Indices
   </div>
@@ -193,7 +194,7 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
       <thead>
         <tr>
           <th style="width:14px"></th>
-          <th>Index Name</th>
+          <th>Index Ticker</th>
           <th class="r">Current Level</th>
           <th class="r" style="min-width:180px">All&#8209;time high <span style="font-weight:400;text-transform:none;font-size:9px">(editable)</span></th>
           <th class="r">Drawdown</th>
@@ -242,7 +243,6 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
 </div>
 
 <script>
-// Separate arrays to explicitly group indices and ETFs dynamically into different table sections
 const INDICES = ['^DJI', '^IXIC', '^GSPC'];
 const ETFS = ['VOO', 'QQQ', 'SCHD', 'SPY', 'VXUS', 'URTH', 'IGV', 'SMH', 'SOXX', 'XLE', 'XLP'];
 const TICKERS = [...INDICES, ...ETFS];
@@ -255,7 +255,6 @@ const TICKER_NAMES = {
   XLE:'Energy Select Sector SPDR', XLP:'Consumer Staples Select SPDR'
 };
 
-// Initial benchmark high water marks from your spreadsheet rows
 const DEFAULT_ATH = {
   '^DJI':51660.40, '^IXIC':27190.21, '^GSPC':7620.90,
   VOO:699.15, QQQ:748.65, SCHD:32.915, SPY:760.40, VXUS:87.055,
@@ -286,7 +285,7 @@ window.addEventListener('DOMContentLoaded', () => {
   if (saved) $('apikey').value = saved;
   $('sasub').textContent = `across all ${TICKERS.length} assets`;
   
-  // Render initial skeletons into correct separate lists
+  // Clean initialization setup
   $('tbody-indices').innerHTML = INDICES.map(t => skRow(t, TICKER_NAMES[t], true)).join('');
   $('tbody-etfs').innerHTML = ETFS.map(t => skRow(t, TICKER_NAMES[t], false)).join('');
 });
@@ -375,7 +374,8 @@ function fillRow(t, price, ath) {
   const row = document.querySelector(`tr[data-t="${t}"]`);
   if (!row) return null;
   $(`dot-${t}`).className = 'rd ok';
-  row.cells[2].innerHTML = `<span style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">${price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`;
+  const prefix = t.startsWith('^') ? '' : '$';
+  row.cells[2].innerHTML = `<span style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">${prefix}${price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`;
   row.cells[3].innerHTML = renderATHCell(t);
   return fillDrawdown(t, price, ath);
 }
@@ -505,7 +505,7 @@ async function loadAll() {
   $('tbody-etfs').innerHTML = ETFS.map(t=>skRow(t,TICKER_NAMES[t], false)).join('');
   ['sd','sdn','ss','ssn','sa','sc'].forEach(id=>$(id).textContent='—');
 
-  let ok=0, fail=0; const results=[];
+  let ok=0, fail=0; const results([]);
 
   for (const t of TICKERS) {
     try {

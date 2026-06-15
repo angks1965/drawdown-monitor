@@ -60,7 +60,7 @@ h1 em { color:var(--accent); font-style:normal; }
 .sval { font-size:22px; font-weight:700; font-variant-numeric:tabular-nums; }
 .ssub { font-size:11px; color:var(--muted); margin-top:2px; }
 
-.sec-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--blue); margin: 1.5rem 0 0.5rem 0; display:flex; align-items:center; gap:6px; }
+.sec-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.09em; color:var(--blue); margin: 1.5rem 0 0.5rem 0; display:flex; align-items:center; gap:6px; }
 
 .twrap { border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:1.5rem; overflow-x:auto; }
 table { width:100%; border-collapse:collapse; font-size:13.5px; min-width:680px; }
@@ -165,7 +165,7 @@ footer { display:flex; align-items:flex-start; justify-content:space-between; fl
     </div>
     <p class="keynote">
       Free key at <a href="https://finnhub.io" target="_blank" rel="noopener">finnhub.io</a> — required for active **ETF rows** only. 
-      <strong style="color:var(--text)">Market Index Points load automatically for free</strong> without consuming your key resources. 
+      <strong style="color:var(--text)">Market Index points load automatically for free</strong> without consuming your key resources. 
       ATH values are fully editable.
     </p>
   </div>
@@ -252,7 +252,7 @@ const DEFAULT_ATH_INDICES = {
   '^DJI': 45000.00, '^IXIC': 20000.00, '^GSPC': 6000.00
 };
 
-// Your original unmodified asset arrays
+// Your original unaltered asset arrays
 const TICKERS = ['VOO','QQQ','SCHD','SPY','VXUS','URTH','IGV','SMH','SOXX','XLE','XLP'];
 const TICKER_NAMES = {
   VOO:'Vanguard S&P 500 ETF', QQQ:'Invesco Nasdaq 100 ETF', SCHD:'Schwab US Dividend Equity ETF',
@@ -290,7 +290,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem(KEY_STORE);
   if (saved) $('apikey').value = saved;
   
-  // Render skeleton containers safely
+  // Render skeleton containers right away
   $('tbody-indices').innerHTML = INDICES.map(t => skRow(t, INDICES_NAMES[t])).join('');
   $('tbody').innerHTML = TICKERS.map(t => skRow(t, TICKER_NAMES[t])).join('');
   
@@ -409,17 +409,14 @@ function updateSummary(results) {
   $('sc').textContent=v.filter(r=>r.pct<-15.0).length;
 }
 
-// Public Open Feed to parse index points without CORS issues or key requirements
+// Keyless public CORS-friendly feed for macro point parameters
 async function fetchFreeIndexPoints(ticker) {
-  const symbolMap = { '^DJI': 'DJI', '^IXIC': 'IXIC', '^GSPC': 'GSPC' };
-  const fallbackSym = symbolMap[ticker] || 'GSPC';
-  
   const url = `https://query1.financecharts.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`http_err_${res.status}`);
   const data = await res.json();
   const meta = data?.chart?.result?.[0]?.meta;
-  const points = meta?.regularMarketPrice || meta?.previousClose;
+  const points = meta?.regularMarketPrice || meta?.regularMarketPreviousClose;
   
   if (!points || points <= 0) throw new Error('invalid_feed_data');
   return points;
@@ -480,93 +477,4 @@ async function suggestATH() {
       if (candidate > current || athStore[t]?.source !== 'manual') {
         athStore[t] = { value: candidate, source: candidateSource };
         updated++;
-        const row = document.querySelector(`tr[data-t="${t}"]`);
-        if (row) {
-          row.cells[3].innerHTML = renderATHCell(t);
-          if (lastPrices[t]) fillDrawdown(t, lastPrices[t], candidate);
-        }
-      }
-    } catch(e) {
-      log(`  ${t}: suggestion skipped — ${e.message}`);
-    }
-    await new Promise(r=>setTimeout(r,120));
-  }
-
-  saveATHStore(athStore);
-  const combined = [...INDICES, ...TICKERS];
-  const results = combined.map(t => {
-    if (!lastPrices[t]) return {t, pct:null};
-    const ath = athStore[t]?.value || (t.startsWith('^') ? DEFAULT_ATH_INDICES[t] : DEFAULT_ATH[t]);
-    return {t, pct: ((lastPrices[t]-ath)/ath)*100};
-  });
-  updateSummary(results);
-  btn.disabled = false;
-}
-
-async function loadAll() {
-  const apiKey = $('apikey').value.trim() || localStorage.getItem(KEY_STORE) || '';
-  const btn=$('rbtn'), sdot=$('sdot'), stxt=$('stxt'), ts=$('ts'), diag=$('diag');
-
-  hideAlerts(); diag.textContent=''; diag.style.display='block';
-
-  // Allow indices to fully process even if no Finnhub key is present yet
-  if (!apiKey) {
-    log('💡 Key missing. Auto-loading index rows via free stream metrics...');
-  }
-
-  btn.disabled=true; sdot.className='spin'; stxt.textContent='Fetching…'; ts.textContent='';
-  
-  $('tbody-indices').innerHTML = INDICES.map(t=>skRow(t,INDICES_NAMES[t])).join('');
-  $('tbody').innerHTML = TICKERS.map(t=>skRow(t,TICKER_NAMES[t])).join('');
-  ['sd','sdn','ss','ssn','sa','sc'].forEach(id=>$(id).textContent='—');
-
-  log(`Origin: ${location.origin} | Protocol: ${location.protocol}`);
-  log('──────────────────────────────');
-
-  let ok=0; const results=[];
-  const combined = [...INDICES, ...TICKERS];
-
-  for (const t of combined) {
-    try {
-      // If it's an ETF and no key is configured, catch early without blowing up the engine execution flow
-      if (!t.startsWith('^') && !apiKey) {
-        throw new Error('key required');
-      }
-
-      const price = await fetchOne(t, apiKey);
-      lastPrices[t] = price;
-      let ath = athStore[t]?.value || (t.startsWith('^') ? DEFAULT_ATH_INDICES[t] : DEFAULT_ATH[t]);
-
-      if (price > ath) {
-        ath = price;
-        athStore[t] = { value: ath, source: 'live' };
-        saveATHStore(athStore);
-      }
-
-      const pct = fillRow(t, price, ath);
-      results.push({t, pct}); ok++;
-    } catch(e) {
-      log(`  ${t}: SKIPPED/FAILED — ${e.message}`);
-      errRow(t, e.message); 
-      results.push({t, pct:null});
-      
-      if (!t.startsWith('^') && (e.message==='invalid_key'||e.message==='forbidden')) {
-        showAlert('aerr','<strong>Finnhub credential validation rejected.</strong> Check ETF inputs.');
-      }
-    }
-    await new Promise(r=>setTimeout(r,120));
-  }
-
-  updateSummary(results);
-  const now=new Date();
-  const lbl=now.toLocaleDateString('en-SG',{day:'2-digit',month:'short',year:'numeric'})+'  '+now.toLocaleTimeString('en-SG',{hour:'2-digit',minute:'2-digit'});
-  sdot.className=''; sdot.style.background=ok>0?'#22c55e':'#ef4444';
-  stxt.textContent=ok>0?`${ok}/${combined.length} loaded`:'Failed';
-  ts.textContent=`Updated: ${lbl}`;
-
-  if (ok===combined.length) { showAlert('aok',`&#x2713; All datasets refreshed successfully.`); diag.style.display='none'; }
-  btn.disabled=false;
-}
-</script>
-</body>
-</html>
+        const row

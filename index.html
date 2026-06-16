@@ -402,43 +402,38 @@ function updateSummary(results){
 
 // ── Fetch price — NO extra headers (avoids CORS preflight) ───────────────
 // ── Fetch index level from Finnhub (same endpoint as ETFs, same API key) ────
-// ── Fetch true index level via CORS proxy → Yahoo Finance ─────────────────
-// Finnhub free tier does NOT support index symbols (^DJI etc) — confirmed.
-// Solution: route Yahoo Finance through a CORS proxy that adds the required
-// Access-Control-Allow-Origin header. Three proxies tried in sequence for
-// resilience in case one is down or rate-limited.
+// ── Fetch true index level + 52-week high via CORS proxy → Yahoo Finance ──
+// Returns {level, weekHigh52} — both come from the same API call for efficiency.
 async function fetchIndex(symbol){
   const yUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
 
   const proxies = [
-    // corsproxy.io — purpose-built CORS proxy, most reliable
     `https://corsproxy.io/?url=${encodeURIComponent(yUrl)}`,
-    // allorigins — wraps response in {contents: "..."}
     `https://api.allorigins.win/get?url=${encodeURIComponent(yUrl)}`,
-    // codetabs — returns raw response with CORS headers
     `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(yUrl)}`,
   ];
 
   let lastErr;
   for (const proxyUrl of proxies) {
     try {
-      log(`  ${symbol}: trying ${proxyUrl.slice(8,28)}…`);
+      log(`  ${symbol}: trying ${proxyUrl.slice(8,30)}…`);
       const res = await fetch(proxyUrl, {signal: AbortSignal.timeout(10000)});
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const raw = await res.json();
 
-      // allorigins wraps in {contents: "..."}, others return JSON directly
       const data = raw.contents ? JSON.parse(raw.contents) : raw;
       const meta = data?.chart?.result?.[0]?.meta;
-      if (!meta) throw new Error('no meta in response');
+      if (!meta) throw new Error('no meta');
 
       const level = (meta.regularMarketPrice && meta.regularMarketPrice > 0)
-        ? meta.regularMarketPrice
-        : meta.previousClose;
-      if (!level || level <= 0) throw new Error('no valid price');
+        ? meta.regularMarketPrice : meta.previousClose;
+      if (!level || level <= 0) throw new Error('no price');
 
-      log(`  ${symbol}: ✓ level = ${level.toLocaleString()}`);
-      return level;
+      // Yahoo also returns 52-week high in the same call — grab it for ATH
+      const weekHigh52 = meta.fiftyTwoWeekHigh || null;
+
+      log(`  ${symbol}: ✓ level=${level.toLocaleString()} 52wH=${weekHigh52||'n/a'}`);
+      return { level, weekHigh52 };
     } catch(e) {
       log(`  ${symbol}: proxy failed — ${e.message}`);
       lastErr = e;
@@ -463,15 +458,42 @@ async function fetchOne(ticker, apiKey){
   return price;
 }
 
-// ── Suggest ATH from 52-week high ─────────────────────────────────────────
-async function fetchSuggestedATH(ticker, apiKey){
-  const url=`https://finnhub.io/api/v1/stock/metric?symbol=${ticker}&metric=price&token=${apiKey}`;
-  const res=await fetch(url);
-  if(!res.ok) throw new Error(`http_${res.status}`);
-  const d=await res.json();
-  const high=d?.metric?.['52WeekHigh'];
-  if(!high||high<=0) throw new Error('no_52w_high');
-  return high;
+// ── Fetch 52-week high for ATH suggestion ─────────────────────────────────
+// For INDICES: reuse Yahoo Finance proxy (same call returns 52wk high in meta)
+// For ETFs: use Finnhub stock/metric endpoint
+async function fetchSuggestedATH(symbol, apiKey){
+  if(INDICES.find(s=>s.t===symbol)){
+    // Yahoo Finance chart meta includes fiftyTwoWeekHigh
+    const yUrl=`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
+    const proxies=[
+      `https://corsproxy.io/?url=${encodeURIComponent(yUrl)}`,
+      `https://api.allorigins.win/get?url=${encodeURIComponent(yUrl)}`,
+      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(yUrl)}`,
+    ];
+    for(const proxyUrl of proxies){
+      try{
+        const res=await fetch(proxyUrl,{signal:AbortSignal.timeout(10000)});
+        if(!res.ok) continue;
+        const raw=await res.json();
+        const data=raw.contents?JSON.parse(raw.contents):raw;
+        const meta=data?.chart?.result?.[0]?.meta;
+        if(!meta) continue;
+        // Yahoo returns fiftyTwoWeekHigh directly in meta
+        const high=meta.fiftyTwoWeekHigh||meta['52WeekHigh'];
+        if(high&&high>0) return high;
+      } catch(e){ continue; }
+    }
+    throw new Error('all proxies failed for index ATH');
+  } else {
+    // ETF: use Finnhub stock/metric endpoint
+    const url=`https://finnhub.io/api/v1/stock/metric?symbol=${symbol}&metric=price&token=${apiKey}`;
+    const res=await fetch(url);
+    if(!res.ok) throw new Error(`http_${res.status}`);
+    const d=await res.json();
+    const high=d?.metric?.['52WeekHigh'];
+    if(!high||high<=0) throw new Error('no_52w_high');
+    return high;
+  }
 }
 
 // ── Test Key ──────────────────────────────────────────────────────────────
@@ -593,13 +615,29 @@ async function loadAll(){
   let ok=0,fail=0; const results=[];
 
   // ── INDICES: Stooq (free, no API key, true index point levels) ───────
-  log('\n── Indices (Finnhub - true index points) ──');
+  log('\n── Indices (Yahoo via proxy — true index points + auto ATH) ──');
   for(const s of INDICES){
     try{
-      const level=await fetchIndex(s.t);
+      const {level, weekHigh52} = await fetchIndex(s.t);
       lastPrices[s.t]=level;
-      let ath=athStore[s.t]?.value||s.ath;
-      if(level>ath){ ath=level; athStore[s.t]={value:ath,source:'live'}; saveATHStore(athStore); log(`  ${s.label}: new ATH → ${ath.toLocaleString()}`); }
+
+      // Auto-update ATH: use 52-week high from Yahoo (same API call, no extra cost)
+      let ath = athStore[s.t]?.value || s.ath;
+      let athUpdated = false;
+      if(weekHigh52 && weekHigh52 > ath){
+        ath = weekHigh52;
+        athStore[s.t] = {value: ath, source: 'suggested'};
+        athUpdated = true;
+        log(`  ${s.t}: ATH auto-updated to 52w high → ${ath.toLocaleString()}`);
+      }
+      if(level > ath){
+        ath = level;
+        athStore[s.t] = {value: ath, source: 'live'};
+        athUpdated = true;
+        log(`  ${s.t}: new all-time high! → ${ath.toLocaleString()}`);
+      }
+      if(athUpdated) saveATHStore(athStore);
+
       const row=document.querySelector(`tr[data-t="${s.t}"]`);
       if(row){
         const dotId='dot-'+s.t.replace(/[^a-zA-Z0-9]/g,'_');
@@ -611,7 +649,7 @@ async function loadAll(){
       const pct=fillDrawdown(s.t,level,ath);
       results.push({t:s.t,label:s.label,pct}); ok++;
     } catch(e){
-      log(`  ${s.label}: FAILED — ${e.message}`);
+      log(`  ${s.t}: FAILED — ${e.message}`);
       errRow(s.t,e.message); results.push({t:s.t,label:s.label,pct:null}); fail++;
     }
     await new Promise(r=>setTimeout(r,400));

@@ -264,6 +264,14 @@ const ETFS = [
 // ── KEY: use same storage name as the last working version (v4) ──────────
 const KEY_STORE = 'finnhub_key_ddm_v4';
 const ATH_STORE = 'ath_values_ddm_v8';
+const LEVEL_CACHE = 'index_level_cache_v1';   // last-known-good index levels
+
+function loadLevelCache(){
+  try { const r=localStorage.getItem(LEVEL_CACHE); if(r) return JSON.parse(r); } catch(e){}
+  return {};
+}
+function saveLevelCache(cache){ localStorage.setItem(LEVEL_CACHE, JSON.stringify(cache)); }
+let levelCache = loadLevelCache();
 
 const ALL = [...INDICES, ...ETFS];
 const $ = id => document.getElementById(id);
@@ -625,7 +633,10 @@ async function loadAll(){
       const {level, weekHigh52} = await fetchIndex(s.t);
       lastPrices[s.t]=level;
 
-      // Auto-update ATH: use 52-week high from Yahoo (same API call, no extra cost)
+      // Cache this successful fetch so a future total-proxy-failure can fall back to it
+      levelCache[s.t] = {level, weekHigh52, ts: Date.now()};
+      saveLevelCache(levelCache);
+
       let ath = athStore[s.t]?.value || s.ath;
       let athUpdated = false;
       if(weekHigh52 && weekHigh52 > ath){
@@ -653,8 +664,32 @@ async function loadAll(){
       const pct=fillDrawdown(s.t,level,ath);
       results.push({t:s.t,label:s.label,pct}); ok++;
     } catch(e){
-      log(`  ${s.t}: FAILED — ${e.message}`);
-      errRow(s.t,e.message); results.push({t:s.t,label:s.label,pct:null}); fail++;
+      log(`  ${s.t}: all proxies failed — ${e.message}`);
+
+      // Graceful degradation: fall back to last-known-good cached level
+      const cached = levelCache[s.t];
+      if(cached && cached.level > 0){
+        const ageMin = Math.round((Date.now()-cached.ts)/60000);
+        log(`  ${s.t}: using cached level from ${ageMin} min ago → ${cached.level.toLocaleString()}`);
+        lastPrices[s.t] = cached.level;
+        let ath = athStore[s.t]?.value || s.ath;
+        if(cached.weekHigh52 && cached.weekHigh52 > ath) ath = cached.weekHigh52;
+        if(cached.level > ath) ath = cached.level;
+
+        const row=document.querySelector(`tr[data-t="${s.t}"]`);
+        if(row){
+          const dotId='dot-'+s.t.replace(/[^a-zA-Z0-9]/g,'_');
+          const dotEl=document.getElementById(dotId);
+          if(dotEl) dotEl.className='rd ok';
+          row.cells[2].innerHTML=`<span style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums" title="Cached ${ageMin} min ago — live fetch failed">${cached.level.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})} <span style="font-size:9px;color:var(--gold)">(cached)</span></span>`;
+          row.cells[3].innerHTML=renderATHCell(s.t);
+        }
+        const pct=fillDrawdown(s.t,cached.level,ath);
+        results.push({t:s.t,label:s.label,pct}); ok++;
+      } else {
+        errRow(s.t,'no proxy + no cache');
+        results.push({t:s.t,label:s.label,pct:null}); fail++;
+      }
     }
     await new Promise(r=>setTimeout(r,400));
   }

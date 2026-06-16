@@ -401,9 +401,10 @@ function updateSummary(results){
 }
 
 // ── Fetch price — NO extra headers (avoids CORS preflight) ───────────────
-// ── Fetch index level from Finnhub (same endpoint as ETFs, same API key) ────
 // ── Fetch true index level + 52-week high via CORS proxy → Yahoo Finance ──
 // Returns {level, weekHigh52} — both come from the same API call for efficiency.
+// Each proxy gets one retry before moving to the next (handles transient
+// "Failed to fetch" / network blips without giving up too early).
 async function fetchIndex(symbol){
   const yUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
 
@@ -411,32 +412,35 @@ async function fetchIndex(symbol){
     `https://corsproxy.io/?url=${encodeURIComponent(yUrl)}`,
     `https://api.allorigins.win/get?url=${encodeURIComponent(yUrl)}`,
     `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(yUrl)}`,
+    `https://thingproxy.freeboard.io/fetch/${yUrl}`,
   ];
 
   let lastErr;
   for (const proxyUrl of proxies) {
-    try {
-      log(`  ${symbol}: trying ${proxyUrl.slice(8,30)}…`);
-      const res = await fetch(proxyUrl, {signal: AbortSignal.timeout(10000)});
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const raw = await res.json();
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        log(`  ${symbol}: trying ${proxyUrl.slice(8,30)}… (attempt ${attempt})`);
+        const res = await fetch(proxyUrl, {signal: AbortSignal.timeout(10000)});
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const raw = await res.json();
 
-      const data = raw.contents ? JSON.parse(raw.contents) : raw;
-      const meta = data?.chart?.result?.[0]?.meta;
-      if (!meta) throw new Error('no meta');
+        const data = raw.contents ? JSON.parse(raw.contents) : raw;
+        const meta = data?.chart?.result?.[0]?.meta;
+        if (!meta) throw new Error('no meta');
 
-      const level = (meta.regularMarketPrice && meta.regularMarketPrice > 0)
-        ? meta.regularMarketPrice : meta.previousClose;
-      if (!level || level <= 0) throw new Error('no price');
+        const level = (meta.regularMarketPrice && meta.regularMarketPrice > 0)
+          ? meta.regularMarketPrice : meta.previousClose;
+        if (!level || level <= 0) throw new Error('no price');
 
-      // Yahoo also returns 52-week high in the same call — grab it for ATH
-      const weekHigh52 = meta.fiftyTwoWeekHigh || null;
+        const weekHigh52 = meta.fiftyTwoWeekHigh || null;
 
-      log(`  ${symbol}: ✓ level=${level.toLocaleString()} 52wH=${weekHigh52||'n/a'}`);
-      return { level, weekHigh52 };
-    } catch(e) {
-      log(`  ${symbol}: proxy failed — ${e.message}`);
-      lastErr = e;
+        log(`  ${symbol}: ✓ level=${level.toLocaleString()} 52wH=${weekHigh52||'n/a'}`);
+        return { level, weekHigh52 };
+      } catch(e) {
+        log(`  ${symbol}: ${proxyUrl.slice(8,24)} attempt ${attempt} failed — ${e.message}`);
+        lastErr = e;
+        if (attempt === 1) await new Promise(r=>setTimeout(r,400)); // brief pause before retry
+      }
     }
   }
   throw new Error(`all proxies failed: ${lastErr?.message}`);
@@ -614,7 +618,7 @@ async function loadAll(){
 
   let ok=0,fail=0; const results=[];
 
-  // ── INDICES: Stooq (free, no API key, true index point levels) ───────
+  // ── INDICES: true index point levels via Yahoo Finance (CORS proxy chain) ──
   log('\n── Indices (Yahoo via proxy — true index points + auto ATH) ──');
   for(const s of INDICES){
     try{

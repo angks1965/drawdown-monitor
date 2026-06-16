@@ -402,10 +402,49 @@ function updateSummary(results){
 
 // ── Fetch price — NO extra headers (avoids CORS preflight) ───────────────
 // ── Fetch index level from Finnhub (same endpoint as ETFs, same API key) ────
-// Finnhub free tier supports ^DJI, ^GSPC, ^IXIC index symbols.
-// Returns c (current) or pc (previous close) — same as ETF quotes.
-async function fetchIndex(symbol, apiKey){
-  return await fetchOne(symbol, apiKey);  // identical call — Finnhub handles both
+// ── Fetch true index level via CORS proxy → Yahoo Finance ─────────────────
+// Finnhub free tier does NOT support index symbols (^DJI etc) — confirmed.
+// Solution: route Yahoo Finance through a CORS proxy that adds the required
+// Access-Control-Allow-Origin header. Three proxies tried in sequence for
+// resilience in case one is down or rate-limited.
+async function fetchIndex(symbol){
+  const yUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
+
+  const proxies = [
+    // corsproxy.io — purpose-built CORS proxy, most reliable
+    `https://corsproxy.io/?url=${encodeURIComponent(yUrl)}`,
+    // allorigins — wraps response in {contents: "..."}
+    `https://api.allorigins.win/get?url=${encodeURIComponent(yUrl)}`,
+    // codetabs — returns raw response with CORS headers
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(yUrl)}`,
+  ];
+
+  let lastErr;
+  for (const proxyUrl of proxies) {
+    try {
+      log(`  ${symbol}: trying ${proxyUrl.slice(8,28)}…`);
+      const res = await fetch(proxyUrl, {signal: AbortSignal.timeout(10000)});
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const raw = await res.json();
+
+      // allorigins wraps in {contents: "..."}, others return JSON directly
+      const data = raw.contents ? JSON.parse(raw.contents) : raw;
+      const meta = data?.chart?.result?.[0]?.meta;
+      if (!meta) throw new Error('no meta in response');
+
+      const level = (meta.regularMarketPrice && meta.regularMarketPrice > 0)
+        ? meta.regularMarketPrice
+        : meta.previousClose;
+      if (!level || level <= 0) throw new Error('no valid price');
+
+      log(`  ${symbol}: ✓ level = ${level.toLocaleString()}`);
+      return level;
+    } catch(e) {
+      log(`  ${symbol}: proxy failed — ${e.message}`);
+      lastErr = e;
+    }
+  }
+  throw new Error(`all proxies failed: ${lastErr?.message}`);
 }
 
 async function fetchOne(ticker, apiKey){
@@ -557,7 +596,7 @@ async function loadAll(){
   log('\n── Indices (Finnhub - true index points) ──');
   for(const s of INDICES){
     try{
-      const level=await fetchIndex(s.t, apiKey);
+      const level=await fetchIndex(s.t);
       lastPrices[s.t]=level;
       let ath=athStore[s.t]?.value||s.ath;
       if(level>ath){ ath=level; athStore[s.t]={value:ath,source:'live'}; saveATHStore(athStore); log(`  ${s.label}: new ATH → ${ath.toLocaleString()}`); }
